@@ -24,7 +24,21 @@
 // Debug performance for operations
 // #define ___DEBUG_PERF___
 
-#include <sys/time.h>
+//#*#*{{
+#ifdef WIN32
+#   include <windows.h>
+#   include <io.h>  
+#   include <process.h>  
+#else
+#   include <sys/time.h>
+#   include <unistd.h>
+#endif
+#ifdef WIN32
+int gettimeofday(struct timeval *tp, void *tzp);
+#endif
+//#*#* #include <sys/time.h>
+//#*#*}}
+#define HAVE_STRUCT_TIMESPEC
 #include <pthread.h>
 #include "atomdictbase.h"
 

@@ -23,13 +23,44 @@
 #ifdef ___DEBUG_PERF___
 #include <cutils/log.h>
 #endif
-#include <unistd.h>
+//#*#* #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <assert.h>
 #include <ctype.h>
 #include <sys/types.h>
-#include <sys/time.h>
+
+ //#*#*{{
+#ifdef WIN32
+#   include <windows.h>
+#   include <io.h>  
+#   include <process.h>  
+#else
+#   include <sys/time.h>
+#   include <unistd.h>
+#endif
+#ifdef WIN32
+int gettimeofday(struct timeval *tp, void *tzp)
+{
+  time_t clock;
+  struct tm tm;
+  SYSTEMTIME wtm;
+  GetLocalTime(&wtm);
+  tm.tm_year = wtm.wYear - 1900;
+  tm.tm_mon = wtm.wMonth - 1;
+  tm.tm_mday = wtm.wDay;
+  tm.tm_hour = wtm.wHour;
+  tm.tm_min = wtm.wMinute;
+  tm.tm_sec = wtm.wSecond;
+  tm.tm_isdst = -1;
+  clock = mktime(&tm);
+  tp->tv_sec = clock;
+  tp->tv_usec = wtm.wMilliseconds * 1000;
+  return (0);
+}
+#endif
+//#*#* #include <sys/time.h>
+//#*#*}}
 #include <time.h>
 #include <pthread.h>
 #include <math.h>
@@ -1267,7 +1298,7 @@ void UserDict::write_back() {
   // It seems truncate is not need on Linux, Windows except Mac
   // I am doing it here anyway for safety.
   off_t cur = lseek(fd, 0, SEEK_CUR);
-  ftruncate(fd, cur);
+  //#*#*ftruncate(fd, cur);
   close(fd);
   state_ = USER_DICT_SYNC;
 }

@@ -3,5 +3,5 @@ set(DICTBUILDER_SRCS
 )
 
 add_executable(dictbuilder ${DICTBUILDER_SRCS})
-target_link_libraries(dictbuilder googlepinyin)
+target_link_libraries(dictbuilder googlepinyin-static)
 
