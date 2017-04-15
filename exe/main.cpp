@@ -16,8 +16,35 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "pinyinime.h"
+#include <cassert>
+
+using namespace ime_pinyin;
 
 int main(int argc, char* argv[])
 {
+  char* szSysDict = "../build/data/dict_pinyin.dat";
+  char* szUserDict = "";
+  if (argc >= 3) {
+    szSysDict = argv[1];
+    szUserDict = argv[2];
+  }
+
+  bool ret = im_open_decoder(szSysDict, szUserDict);
+  assert(ret);
+
+  im_set_max_lens(32, 16);
+  im_reset_search();
+  size_t nr = im_search("xian'jin", 8);
+  size_t size = 0;
+  printf("%s", im_get_sps_str(&size));
+  char16 str[64] = { 0 };
+  for (auto i = 0; i < nr; i++)
+  {
+    im_get_candidate(i, str, 32);
+  }
+
+  im_close_decoder();
+
 	return 0;
 }

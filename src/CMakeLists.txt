@@ -48,6 +48,7 @@ set(ENABLE_STATIC 1)
 if (ENABLE_STATIC)
 
 add_library(googlepinyin-static STATIC ${GOOGLEPINYIN_SRC})
+
 SET_TARGET_PROPERTIES(googlepinyin-static PROPERTIES
     OUTPUT_NAME "googlepinyin"
     PREFIX "lib"
