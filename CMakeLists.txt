@@ -29,6 +29,7 @@ set(CMAKE_C_FLAGS "-Wall ${CMAKE_C_FLAGS}")
 set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined ${CMAKE_SHARED_LINKER_FLAG}")
 
 add_subdirectory(src)
+add_subdirectory(exe)
 add_subdirectory(tools)
 add_subdirectory(include)
 add_subdirectory(data)
