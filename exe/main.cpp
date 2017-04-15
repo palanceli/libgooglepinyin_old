@@ -18,6 +18,9 @@
 #include <stdio.h>
 #include "pinyinime.h"
 #include <cassert>
+#include <memory.h>
+#include <Windows.h>
+#include <tchar.h>
 
 using namespace ime_pinyin;
 
@@ -35,13 +38,17 @@ int main(int argc, char* argv[])
 
   im_set_max_lens(32, 16);
   im_reset_search();
-  size_t nr = im_search("xian'jin", 8);
+  size_t nr = im_search("xian'guo", 8);
   size_t size = 0;
   printf("%s", im_get_sps_str(&size));
   char16 str[64] = { 0 };
   for (auto i = 0; i < nr; i++)
   {
     im_get_candidate(i, str, 32);
+    const wchar_t* szCand = (const wchar_t*)str;
+    wprintf(szCand);
+    int j = 0;
+    j++;
   }
 
   im_close_decoder();
