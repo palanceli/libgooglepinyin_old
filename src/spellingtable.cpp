@@ -134,6 +134,7 @@ bool SpellingTable::init_table(size_t pure_spl_size, size_t spl_max_num,
   return true;
 }
 
+// 将spelling_str添加到哈希表raw_spellings_中
 bool SpellingTable::put_spelling(const char* spelling_str, double freq) {
   if (frozen_ || NULL == spelling_str)
     return false;

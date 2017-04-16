@@ -371,6 +371,7 @@ size_t DictBuilder::read_raw_dict(const char* fn_raw,
   if (NULL == fn_raw) return 0;
 
   Utf16Reader utf16_reader;
+  // 打开文件，同时根据第二个参数申请buffer，以备盛放读出的数据
   if (!utf16_reader.open(fn_raw, kReadBufLen * 10))
     return false;
 

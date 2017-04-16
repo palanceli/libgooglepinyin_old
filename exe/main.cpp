@@ -21,11 +21,13 @@
 #include <memory.h>
 #include <Windows.h>
 #include <tchar.h>
+#include <locale.h>
 
 using namespace ime_pinyin;
 
 int main(int argc, char* argv[])
 {
+  setlocale(LC_ALL, "");
   char* szSysDict = "../build/data/dict_pinyin.dat";
   char* szUserDict = "";
   if (argc >= 3) {
@@ -35,20 +37,28 @@ int main(int argc, char* argv[])
 
   bool ret = im_open_decoder(szSysDict, szUserDict);
   assert(ret);
-
   im_set_max_lens(32, 16);
-  im_reset_search();
-  size_t nr = im_search("xian'guo", 8);
-  size_t size = 0;
-  printf("%s", im_get_sps_str(&size));
-  char16 str[64] = { 0 };
-  for (auto i = 0; i < nr; i++)
-  {
-    im_get_candidate(i, str, 32);
-    const wchar_t* szCand = (const wchar_t*)str;
-    wprintf(szCand);
-    int j = 0;
-    j++;
+  char szLine[256];
+
+  while (true) {
+    wprintf(L"\n.Æ´Òô >");
+    gets_s(szLine, 256);
+    if (strlen(szLine) == 0)
+      break;
+    
+    im_reset_search();
+    size_t nr = im_search(szLine, 8);
+    size_t size = 0;
+    printf("%s\n", im_get_sps_str(&size));
+    char16 str[64] = { 0 };
+    for (auto i = 0; i < nr; i++)
+    {
+      im_get_candidate(i, str, 32);
+      const wchar_t* szCand = (const wchar_t*)str;
+      wprintf(L"%s\n", szCand);
+      int j = 0;
+      j++;
+    }
   }
 
   im_close_decoder();
