@@ -171,6 +171,7 @@ bool SpellingTable::put_spelling(const char* spelling_str, double freq) {
       strncpy(raw_spellings_[hash_pos].str, spelling_str, spelling_size_ - 1);
       raw_spellings_[hash_pos].str[spelling_size_ - 1] = '\0';
       spelling_num_++;
+
       return true;
     }
 
@@ -282,10 +283,10 @@ const char* SpellingTable::arrange(size_t *item_size, size_t *spl_num) {
       this_spl_buf[spelling_size_ - 1] =
           static_cast<char>((unsigned char)score);
 
-      if (kPrintDebug0) {
-        printf("---pos:%zd, %s, psb:%d\n", pos, this_spl_buf,
-               (unsigned char)this_spl_buf[spelling_size_ -1]);
-      }
+      //if (kPrintDebug0) {
+      //  printf("---pos:%zd, %s, psb:%d\n", pos, this_spl_buf,
+      //         (unsigned char)this_spl_buf[spelling_size_ -1]);
+      //}
     }
     average_score /= spelling_num_;
     assert(average_score <= 255);

@@ -36,9 +36,9 @@ typedef int32_t  int32;
 typedef int64_t  int64;
 typedef uint64_t uint64;
 
-const bool kPrintDebug0 = false;
-const bool kPrintDebug1 = false;
-const bool kPrintDebug2 = false;
+const bool kPrintDebug0 = true;
+const bool kPrintDebug1 = true;
+const bool kPrintDebug2 = true;
 
 // The max length of a lemma.
 const size_t kMaxLemmaSize = 8;

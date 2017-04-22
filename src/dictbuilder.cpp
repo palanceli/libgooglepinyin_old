@@ -547,6 +547,7 @@ bool DictBuilder::build_dict(const char *fn_raw,
         spl_parser_->splstr_to_idxs(lemma_arr_[i].pinyin_str[hz_pos],
                                     strlen(lemma_arr_[i].pinyin_str[hz_pos]),
                                     spl_idxs, spl_start_pos, 2, is_pre);
+      //printf("str=%s id=%d\n", lemma_arr_[i].pinyin_str[hz_pos], spl_idxs[0]);
       assert(1 == spl_idx_num);
 
       if (spl_trie.is_half_id(spl_idxs[0])) {
@@ -556,6 +557,20 @@ bool DictBuilder::build_dict(const char *fn_raw,
       lemma_arr_[i].spl_idx_arr[hz_pos] = spl_idxs[0];
     }
   }
+  //if (kPrintDebug0) {
+  //  char* half[] = { "A", "B", "C", "Ch", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "Sh", "T", "W", "X", "Y", "Z", "Zh", "" };
+  //  for (auto i = 0; i < 40; i++) {
+  //    char* p = half[i];
+  //    if (strlen(p) == 0)
+  //      break;
+  //    uint16 spl_idxs[2];
+  //    uint16 spl_start_pos[3];
+  //    bool is_pre = true;
+  //    int spl_idx_num =
+  //      spl_parser_->splstr_to_idxs(p, strlen(p), spl_idxs, spl_start_pos, 2, is_pre);
+  //    printf("str=%s id=%d\n", p, spl_idxs[0]);
+  //  }
+  //}
 
   // Sort the lemma items according to the hanzi, and give each unique item a
   // id
@@ -693,6 +708,24 @@ LemmaIdType DictBuilder::sort_lemmas_by_hz() {
       idx_max++;
       lemma_arr_[i].idx_by_hz = idx_max;
     }
+  //  if (kPrintDebug0) {
+  //    wchar_t szMsg[256] = { 0 };
+  //    wchar_t szTmp[64] = { 0 };
+  //    const wchar_t* szCand = (const wchar_t*)lemma_arr_[i].hanzi_str;
+  //    wprintf(L"%d %d %s {", lemma_arr_[i].idx_by_py, lemma_arr_[i].idx_by_hz, szCand);
+  //    for (auto j = 0; j < kMaxLemmaSize; j++) {
+  //      printf("%d,", lemma_arr_[i].hanzi_scis_ids[j]);
+  //    }
+  //    printf("} {");
+  //    for (auto j = 0; j < lemma_arr_[i].hz_str_len; j++) {
+  //      printf("%d,", lemma_arr_[i].spl_idx_arr[j]);
+  //    }
+  //    printf("} {");
+  //    for (auto j = 0; j < lemma_arr_[i].hz_str_len; j++) {
+  //      printf("%s,", lemma_arr_[i].pinyin_str[j]);
+  //    }
+  //    printf("} %d %.4f\n", lemma_arr_[i].hz_str_len, lemma_arr_[i].freq);
+  //  }
   }
   return idx_max + 1;
 }
@@ -719,21 +752,21 @@ size_t DictBuilder::build_scis() {
       scis_[scis_num_].splid.half_splid =
           spl_trie.full_to_half(scis_[scis_num_].splid.full_splid);
       if (1 == hz_num)
-        scis_[scis_num_].freq = lemma_arr_[pos].freq;
+        scis_[scis_num_].freq = lemma_arr_[pos].freq; // 在词库里就是单字的，字频=词频
       else
-        scis_[scis_num_].freq = 0.000001;
+        scis_[scis_num_].freq = 0.000001;             // 否则给个极小值
       scis_num_++;
     }
   }
 
-  myqsort(scis_, scis_num_, sizeof(SingleCharItem), cmp_scis_hz_splid_freq);
+  myqsort(scis_, scis_num_, sizeof(SingleCharItem), cmp_scis_hz_splid_freq); // 按照汉字排序，如果字相同则看音，如果音也相同则看字频
 
   // Remove repeated items
   size_t unique_scis_num = 1;
   for (size_t pos = 1; pos < scis_num_; pos++) {
     if (scis_[pos].hz == scis_[pos - 1].hz &&
         scis_[pos].splid.full_splid == scis_[pos - 1].splid.full_splid)
-      continue;
+      continue; // 对于同字同音的元素，则扔掉后者
     scis_[unique_scis_num] = scis_[pos];
     scis_[unique_scis_num].splid.half_splid =
         spl_trie.full_to_half(scis_[pos].splid.full_splid);
@@ -742,6 +775,14 @@ size_t DictBuilder::build_scis() {
 
   scis_num_ = unique_scis_num;
 
+  //if (kPrintDebug0) {
+  //  for (auto i = 0; i < scis_num_; i++) {
+  //    wchar_t sz[2] = { 0 };
+  //    sz[0] = scis_[i].hz;
+  //    wprintf(L"%s ", sz);
+  //    printf("%.4f %d %d\n", scis_[i].freq, scis_[i].splid.half_splid, scis_[i].splid.full_splid);
+  //  }
+  //}
   // Update the lemma list.
   for (size_t pos = 0; pos < lemma_num_; pos++) {
     size_t hz_num = lemma_arr_[pos].hz_str_len;
@@ -762,6 +803,25 @@ size_t DictBuilder::build_scis() {
       lemma_arr_[pos].hanzi_scis_ids[hzpos] =
           static_cast<uint16>(found - scis_);
       lemma_arr_[pos].spl_idx_arr[hzpos] = found->splid.full_splid;
+
+    }
+    if (kPrintDebug0) {
+      wchar_t szMsg[256] = { 0 };
+      wchar_t szTmp[64] = { 0 };
+      const wchar_t* szCand = (const wchar_t*)lemma_arr_[pos].hanzi_str;
+      wprintf(L"%d %d %s {", lemma_arr_[pos].idx_by_py, lemma_arr_[pos].idx_by_hz, szCand);
+      for (auto j = 0; j < kMaxLemmaSize; j++) {
+        printf("%d,", lemma_arr_[pos].hanzi_scis_ids[j]);
+      }
+      printf("} {");
+      for (auto j = 0; j < lemma_arr_[pos].hz_str_len; j++) {
+        printf("%d,", lemma_arr_[pos].spl_idx_arr[j]);
+      }
+      printf("} {");
+      for (auto j = 0; j < lemma_arr_[pos].hz_str_len; j++) {
+        printf("%s,", lemma_arr_[pos].pinyin_str[j]);
+      }
+      printf("} %d %.4f\n", lemma_arr_[pos].hz_str_len, lemma_arr_[pos].freq);
     }
   }
 

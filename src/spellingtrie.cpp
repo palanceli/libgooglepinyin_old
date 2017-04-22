@@ -269,6 +269,20 @@ void SpellingTrie::free_son_trie(SpellingNode* node) {
     delete [] node->first_son;
 }
 
+static void walkThrought(SpellingNode* node, char* str)
+{
+  char thisStr[8] = { 0 };
+  sprintf(thisStr, "%s%c", str, node->char_this_node);
+  printf("str=%s spl_idx=%d num_of_son=%d score=%d\n", thisStr, node->spelling_idx, node->num_of_son, node->score);
+  if (node->num_of_son == 0)
+    return;
+
+  SpellingNode* childNode = node->first_son;
+  for (auto i = 0; i < node->num_of_son; i++) {
+    walkThrought(&childNode[i], thisStr);
+  }
+}
+
 bool SpellingTrie::construct(const char* spelling_arr, size_t item_size,
                              size_t item_num, float score_amplifier,
                              unsigned char average_score) {
@@ -292,7 +306,11 @@ bool SpellingTrie::construct(const char* spelling_arr, size_t item_size,
 
   spelling_size_ = item_size;
   spelling_num_ = item_num;
-
+  //for (auto i = 0; i < spelling_num_; i++) {
+  //  char* spl = spelling_buf_ + i * spelling_size_;
+  //  unsigned char pr = spl[7];
+  //  printf("idx=%d spl=%s score=%d\n", i, spl, pr);
+  //}
   score_amplifier_ = score_amplifier;
   average_score_ = average_score;
 
@@ -336,6 +354,9 @@ bool SpellingTrie::construct(const char* spelling_arr, size_t item_size,
   if (NULL == root_->first_son)
     return false;
 
+  //printf("--------------walk through trie-----------------\n");
+  //walkThrought(root_, "");
+
   h2f_start_[0] = h2f_num_[0] = 0;
 
   if (!build_f2h())
@@ -371,6 +392,7 @@ bool SpellingTrie::build_ym_info() {
   sucess = spl_table->init_table(kMaxPinyinSize - 1, 2 * kMaxYmNum, false);
   assert(sucess);
 
+  // 将韵母添加到哈希表spl_table->raw_spellings_中
   for (uint16 pos = 0; pos < spelling_num_; pos++) {
     const char *spl_str = spelling_buf_ + spelling_size_ * pos;
     spl_str = get_ym_str(spl_str);
@@ -383,7 +405,7 @@ bool SpellingTrie::build_ym_info() {
   size_t ym_item_size;  // '\0' is included
   size_t ym_num;
   const char* ym_buf;
-  ym_buf = spl_table->arrange(&ym_item_size, &ym_num);
+  ym_buf = spl_table->arrange(&ym_item_size, &ym_num); // 按韵母字串排序
 
   if (NULL != ym_buf_)
     delete [] ym_buf_;
@@ -393,12 +415,20 @@ bool SpellingTrie::build_ym_info() {
     return false;
   }
 
-  memcpy(ym_buf_, ym_buf, sizeof(char) * ym_item_size * ym_num);
+  memcpy(ym_buf_, ym_buf, sizeof(char) * ym_item_size * ym_num); // 将韵母拷贝到ym_buf_中
   ym_size_ = ym_item_size;
   ym_num_ = ym_num;
 
   delete spl_table;
-
+  //if (kPrintDebug0) {
+  //  printf("------------ym_buf_  id--------------\n");
+  //  for (auto i = 0; i < ym_num; i++) {
+  //    for (auto j = 0; j < ym_item_size; j++) {
+  //      printf("%c", ym_buf_[i*ym_item_size + j]);
+  //    }
+  //    printf("\n");
+  //  }
+  //}
   // Generate the maping from the spelling ids to the Yunmu ids.
   if (spl_ym_ids_)
     delete spl_ym_ids_;
@@ -407,9 +437,12 @@ bool SpellingTrie::build_ym_info() {
     return false;
 
   memset(spl_ym_ids_, 0, sizeof(uint8) * (spelling_num_ + kFullSplIdStart));
-
+  if (kPrintDebug0)
+    printf("------------spl_ym_ids  id--------------\n");
   for (uint16 id = 1; id < spelling_num_ + kFullSplIdStart; id++) {
     const char *str = get_spelling_str(id);
+    //if (kPrintDebug0)
+    //  printf("id=%4d str=%s\n", id, str);
 
     str = get_ym_str(str);
     if ('\0' != str[0]) {
@@ -419,6 +452,8 @@ bool SpellingTrie::build_ym_info() {
     } else {
       spl_ym_ids_[id] = 0;
     }
+    //if (kPrintDebug0)
+    //  printf("spl_ym_ids [ %3d ]= %d\n", id, spl_ym_ids_[id]);
   }
   return true;
 }
@@ -697,10 +732,15 @@ bool SpellingTrie::build_f2h() {
   if (NULL == f2h_)
     return false;
 
+  //if (kPrintDebug0)
+  //  printf("------------h2f_num_--------------\n");
   for (uint16 hid = 0; hid < kFullSplIdStart; hid++) {
     for (uint16 fid = h2f_start_[hid];
-         fid < h2f_start_[hid] + h2f_num_[hid]; fid++)
+      fid < h2f_start_[hid] + h2f_num_[hid]; fid++) {
       f2h_[fid - kFullSplIdStart] = hid;
+      //if (kPrintDebug0)
+      //  printf("h2f_num_[ %3d ]= %3d\n", hid, h2f_num_[hid]);
+    }
   }
 
   return true;

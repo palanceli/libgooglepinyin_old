@@ -31,6 +31,7 @@
 //#*#*}}
 #include "../include/dicttrie.h"
 
+#include <locale.h>
 using namespace ime_pinyin;
 
 /**
@@ -38,6 +39,7 @@ using namespace ime_pinyin;
  * in dictdef.h.
  */
 int main(int argc, char* argv[]) {
+  setlocale(LC_ALL, "");
   DictTrie* dict_trie = new DictTrie();
   bool success;
   if (argc >= 3)
