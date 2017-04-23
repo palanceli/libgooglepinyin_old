@@ -286,7 +286,7 @@ bool DictBuilder::str_in_hanzis_list(const char16 *hzs, size_t hzs_len,
   return true;
 }
 
-void DictBuilder::get_top_lemmas() {
+void DictBuilder::get_top_lemmas() { // 取出词频最大的top_lmas_num_个，由大到小排到top_lmas_中
   top_lmas_num_ = 0;
   if (NULL == lemma_arr_)
     return;
@@ -303,6 +303,7 @@ void DictBuilder::get_top_lemmas() {
         top_lmas_num_ += 1;
 
       size_t move_pos;
+      // 将top_lmas_按照由大到小排序
       for (move_pos = top_lmas_num_ - 1; move_pos > 0; move_pos--) {
         top_lmas_[move_pos] = top_lmas_[move_pos - 1];
         if (0 == move_pos - 1 ||
@@ -319,13 +320,13 @@ void DictBuilder::get_top_lemmas() {
     }
   }
 
-  if (kPrintDebug0) {
-    printf("\n------Top Lemmas------------------\n");
-    for (size_t pos = 0; pos < top_lmas_num_; pos++) {
-      printf("--%zd, idx:%06zd, score:%.5f\n", pos, top_lmas_[pos].idx_by_hz,
-             top_lmas_[pos].freq);
-    }
-  }
+  //if (kPrintDebug0) {
+  //  printf("\n------Top Lemmas------------------\n");
+  //  for (size_t pos = 0; pos < top_lmas_num_; pos++) {
+  //    printf("--%zd, idx:%06zd, score:%.5f\n", pos, top_lmas_[pos].idx_by_hz,
+  //           top_lmas_[pos].freq);
+  //  }
+  //}
 }
 
 void DictBuilder::free_resource() {
@@ -592,8 +593,27 @@ bool DictBuilder::build_dict(const char *fn_raw,
   // sort the lemma items according to the spelling idx string
   myqsort(lemma_arr_, lemma_num_, sizeof(LemmaEntry), compare_py);
 
-  get_top_lemmas();
-
+  get_top_lemmas(); // 取出词频最大的top_lmas_num_个LemmaEntry，由大到小排到top_lmas_中
+  //if (kPrintDebug0) {
+  //  for (auto i = 0; i < lemma_num_; i++) {
+  //    wchar_t szMsg[256] = { 0 };
+  //    wchar_t szTmp[64] = { 0 };
+  //    const wchar_t* szCand = (const wchar_t*)lemma_arr_[i].hanzi_str;
+  //    wprintf(L"%d %d %s {", lemma_arr_[i].idx_by_py, lemma_arr_[i].idx_by_hz, szCand);
+  //    for (auto j = 0; j < kMaxLemmaSize; j++) {
+  //      printf("%d,", lemma_arr_[i].hanzi_scis_ids[j]);
+  //    }
+  //    printf("} {");
+  //    for (auto j = 0; j < lemma_arr_[i].hz_str_len; j++) {
+  //      printf("%d,", lemma_arr_[i].spl_idx_arr[j]);
+  //    }
+  //    printf("} {");
+  //    for (auto j = 0; j < lemma_arr_[i].hz_str_len; j++) {
+  //      printf("%s,", lemma_arr_[i].pinyin_str[j]);
+  //    }
+  //    printf("} %d %.4f\n", lemma_arr_[i].hz_str_len, lemma_arr_[i].freq);
+  //  }
+  //}
 #ifdef ___DO_STATISTICS___
   stat_init();
 #endif
@@ -605,7 +625,21 @@ bool DictBuilder::build_dict(const char *fn_raw,
     free_resource();
     return false;
   }
+  if (kPrintDebug0) {
+    //for (auto i = 0; i < kMaxSpellingNum + 1; i++) {
+    //  printf("%d %d %d %d %d\n", lma_nodes_le0_[i].son_1st_off, lma_nodes_le0_[i].homo_idx_buf_off, lma_nodes_le0_[i].spl_idx,
+    //  lma_nodes_le0_[i].num_of_son, lma_nodes_le0_[i].num_of_homo);
+    //}
+    //for (auto i = 0; i < lemma_num_; i++) {
+      //  printf("%d\n", homo_idx_buf_[i]);
+    //}
+    //for (auto i = 0; i < lemma_num_; i++) {
+    //  int son_1st_off = (lma_nodes_ge1_[i].son_1st_off_h << 16) | lma_nodes_ge1_[i].son_1st_off_l;
+    //  int homo_idx_buf_off = (lma_nodes_ge1_[i].homo_idx_buf_off_h << 16) | lma_nodes_ge1_[i].homo_idx_buf_off_l;
 
+    //  printf("%d %d %d %d %d\n", son_1st_off, homo_idx_buf_off, lma_nodes_ge1_[i].spl_idx, lma_nodes_ge1_[i].num_of_son, lma_nodes_ge1_[i].num_of_homo);
+    //}
+  }
 #ifdef ___DO_STATISTICS___
   stat_print();
 #endif
@@ -622,16 +656,17 @@ bool DictBuilder::build_dict(const char *fn_raw,
   dict_trie->lma_idx_buf_len_ = lma_idx_num * kLemmaIdSize;
   dict_trie->top_lmas_num_ = top_lmas_num_;
 
+  // 将lma_nodes_le0拷贝到dict_trie->root_，将lma_node_ge1_拷贝到dict_trie->nodes_ge1_
   memcpy(dict_trie->root_, lma_nodes_le0_,
          sizeof(LmaNodeLE0) * lma_nds_used_num_le0_);
   memcpy(dict_trie->nodes_ge1_, lma_nodes_ge1_,
          sizeof(LmaNodeGE1) * lma_nds_used_num_ge1_);
-
+  // 将homo_idx_buf_拷贝到dict_trie->lma_idx_buf_，该数组的每个元素是3个字节
   for (size_t pos = 0; pos < homo_idx_num_eq1_ + homo_idx_num_gt1_; pos++) {
     id_to_charbuf(dict_trie->lma_idx_buf_ + pos * kLemmaIdSize,
                   homo_idx_buf_[pos]);
   }
-
+  // dict_trie->lma_idx_buf_末端10个元素是词频最高的top10系统词
   for (size_t pos = homo_idx_num_eq1_ + homo_idx_num_gt1_;
        pos < lma_idx_num; pos++) {
     LemmaIdType idx =
@@ -805,24 +840,24 @@ size_t DictBuilder::build_scis() {
       lemma_arr_[pos].spl_idx_arr[hzpos] = found->splid.full_splid;
 
     }
-    if (kPrintDebug0) {
-      wchar_t szMsg[256] = { 0 };
-      wchar_t szTmp[64] = { 0 };
-      const wchar_t* szCand = (const wchar_t*)lemma_arr_[pos].hanzi_str;
-      wprintf(L"%d %d %s {", lemma_arr_[pos].idx_by_py, lemma_arr_[pos].idx_by_hz, szCand);
-      for (auto j = 0; j < kMaxLemmaSize; j++) {
-        printf("%d,", lemma_arr_[pos].hanzi_scis_ids[j]);
-      }
-      printf("} {");
-      for (auto j = 0; j < lemma_arr_[pos].hz_str_len; j++) {
-        printf("%d,", lemma_arr_[pos].spl_idx_arr[j]);
-      }
-      printf("} {");
-      for (auto j = 0; j < lemma_arr_[pos].hz_str_len; j++) {
-        printf("%s,", lemma_arr_[pos].pinyin_str[j]);
-      }
-      printf("} %d %.4f\n", lemma_arr_[pos].hz_str_len, lemma_arr_[pos].freq);
-    }
+    //if (kPrintDebug0) {
+    //  wchar_t szMsg[256] = { 0 };
+    //  wchar_t szTmp[64] = { 0 };
+    //  const wchar_t* szCand = (const wchar_t*)lemma_arr_[pos].hanzi_str;
+    //  wprintf(L"%d %d %s {", lemma_arr_[pos].idx_by_py, lemma_arr_[pos].idx_by_hz, szCand);
+    //  for (auto j = 0; j < kMaxLemmaSize; j++) {
+    //    printf("%d,", lemma_arr_[pos].hanzi_scis_ids[j]);
+    //  }
+    //  printf("} {");
+    //  for (auto j = 0; j < lemma_arr_[pos].hz_str_len; j++) {
+    //    printf("%d,", lemma_arr_[pos].spl_idx_arr[j]);
+    //  }
+    //  printf("} {");
+    //  for (auto j = 0; j < lemma_arr_[pos].hz_str_len; j++) {
+    //    printf("%s,", lemma_arr_[pos].pinyin_str[j]);
+    //  }
+    //  printf("} %d %.4f\n", lemma_arr_[pos].hz_str_len, lemma_arr_[pos].freq);
+    //}
   }
 
   return scis_num_;
@@ -843,6 +878,7 @@ bool DictBuilder::construct_subset(void* parent, LemmaEntry* lemma_arr,
   uint16 spl_idx_node = lma_last_start->spl_idx_arr[level];
 
   // Scan for how many sons to be allocaed
+  // 当前这一层(level层)有多少元素，记录到parent_son_num
   for (size_t i = item_start + 1; i< item_end; i++) {
     LemmaEntry *lma_current = lemma_arr + i;
     uint16 spl_idx_current = lma_current->spl_idx_arr[level];
@@ -859,7 +895,7 @@ bool DictBuilder::construct_subset(void* parent, LemmaEntry* lemma_arr,
 
   assert(level < kMaxLemmaSize);
   if (parent_son_num > max_sonbuf_len_[level])
-    max_sonbuf_len_[level] = parent_son_num;
+    max_sonbuf_len_[level] = parent_son_num;  // 记录该层元素个数
 
   total_son_num_[level] += parent_son_num;
   total_sonbuf_num_[level] += 1;
@@ -921,9 +957,10 @@ bool DictBuilder::construct_subset(void* parent, LemmaEntry* lemma_arr,
     uint16 spl_idx_current = lma_current->spl_idx_arr[level];
 
     if (spl_idx_current == spl_idx_node) {
+      // 在当前层下，对于音相同的元素，homo_num记录当前音下有多少个词
       if (lma_current->spl_idx_arr[level + 1] == 0)
         homo_num++;
-    } else {
+    } else { // 一直走到在当前层下，音不同的元素
       // Construct a node
       LmaNodeLE0 *node_cur_le0 = NULL;  // only one of them is valid
       LmaNodeGE1 *node_cur_ge1 = NULL;
@@ -943,7 +980,7 @@ bool DictBuilder::construct_subset(void* parent, LemmaEntry* lemma_arr,
         homo_idx_num_gt1_ += homo_num;
       }
 
-      if (homo_num > 0) {
+      if (homo_num > 0) { // 如果当前音节下有多个词，将它们记录到idx_buf数组中
         LemmaIdType* idx_buf = homo_idx_buf_ + homo_idx_num_eq1_ +
               homo_idx_num_gt1_ - homo_num;
         if (0 == level) {
@@ -966,7 +1003,7 @@ bool DictBuilder::construct_subset(void* parent, LemmaEntry* lemma_arr,
 #endif
       }
 
-      if (i - item_start_next > homo_num) {
+      if (i - item_start_next > homo_num) { // 说明在当前音节下还有子节点
         void *next_parent;
         if (0 == level)
           next_parent = static_cast<void*>(node_cur_le0);

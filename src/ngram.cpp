@@ -40,6 +40,7 @@ inline double distance(double freq, double code) {
 }
 
 // Find the index of the code value which is nearest to the given freq
+// 在code_book[]中找到与freq最接近的值，返回下标
 int qsearch_nearest(double code_book[], double freq, int start, int end) {
   if (start == end)
     return start;
@@ -61,9 +62,14 @@ int qsearch_nearest(double code_book[], double freq, int start, int end) {
 size_t update_code_idx(double freqs[], size_t num, double code_book[],
                        CODEBOOK_TYPE *code_idx) {
   size_t changed = 0;
+  // 将系统词频归拢成256个值，具体做法是：
+  // 1、在系统词库中从头往后找，找出256个不同的词频；
+  // 2、遍历系统词库，对于每一个词频，从这256个中找到与之最接近的，作为该词的词频
+  // 将最接近的元素下标记录到code_idx中
   for (size_t pos = 0; pos < num; pos++) {
     CODEBOOK_TYPE idx;
-    idx = qsearch_nearest(code_book, freqs[pos], 0, kCodeBookSize - 1);
+    // 在cood_book中找到与freqs[pos]最接近的值，返回其下标
+    idx = qsearch_nearest(code_book, freqs[pos], 0, kCodeBookSize - 1); 
     if (idx != code_idx[pos])
       changed++;
     code_idx[pos] = idx;
@@ -86,19 +92,19 @@ double recalculate_kernel(double freqs[], size_t num, double code_book[],
   for (size_t pos = 0; pos < num; pos++) {
     ret += distance(freqs[pos], code_book[code_idx[pos]]);
 
-    cb_new[code_idx[pos]] += freqs[pos];
-    item_num[code_idx[pos]] += 1;
+    cb_new[code_idx[pos]] += freqs[pos];  // 所有指向该位置的freqs总和
+    item_num[code_idx[pos]] += 1;         // 所有指向该位置的freqs的元素个数
   }
 
   for (size_t code = 0; code < kCodeBookSize; code++) {
     assert(item_num[code] > 0);
-    code_book[code] = cb_new[code] / item_num[code];
+    code_book[code] = cb_new[code] / item_num[code]; // 所有指向该位置的freqs的均值
   }
 
   delete [] item_num;
   delete [] cb_new;
 
-  return ret;
+  return ret; // 返回“lemma_arr中词频和归拢词频的差”的总和
 }
 
 void iterate_codes(double freqs[], size_t num, double code_book[],
@@ -106,8 +112,12 @@ void iterate_codes(double freqs[], size_t num, double code_book[],
   size_t iter_num = 0;
   double delta_last = 0;
   do {
+    // 将系统词库中每个词的词频归拢成256个值，对于lemma_arr中的每个元素i，
+    // code_book[ code_idx[i] ] 是与该词词频最接近的归拢后的词频
     size_t changed = update_code_idx(freqs, num, code_book, code_idx);
 
+    // 对于code_book中每个元素，取在lemma_arr归拢到该元素的所有词条的freq平均值，重新赋给该元素
+    // delat是 Σ(lemma_arr每个词频-其归拢值)
     double delta = recalculate_kernel(freqs, num, code_book, code_idx);
 
     //if (kPrintDebug0) {
@@ -254,6 +264,7 @@ bool NGram::build_unigram(LemmaEntry *lemma_arr, size_t lemma_num,
   freqs[0] = ADD_COUNT;
   total_freq += freqs[0];
   LemmaIdType idx_now = 0;
+  // 将lemma_arr中的词频拷贝到freqs[]数组，并记录总词频total_freq
   for (size_t pos = 0; pos < lemma_num; pos++) {
     if (lemma_arr[pos].idx_by_hz == idx_now)
       continue;
@@ -269,11 +280,12 @@ bool NGram::build_unigram(LemmaEntry *lemma_arr, size_t lemma_num,
   }
 
   double max_freq = 0;
-  idx_num_ = idx_now + 1;
+  idx_num_ = idx_now + 1; // lemma_arr_系统词条个数+1
   assert(idx_now + 1 == next_idx_unused);
 
+  // 在freqs中折算词频 并记录最大词频
   for (size_t pos = 0; pos < idx_num_; pos++) {
-    freqs[pos] = freqs[pos] / total_freq;
+    freqs[pos] = freqs[pos] / total_freq; // 折算方法
     assert(freqs[pos] > 0);
     if (freqs[pos] > max_freq)
       max_freq = freqs[pos];
@@ -291,6 +303,7 @@ bool NGram::build_unigram(LemmaEntry *lemma_arr, size_t lemma_num,
   memset(freq_codes_, 0, sizeof(LmaScoreType) * kCodeBookSize);
 
   size_t freq_pos = 0;
+  // 在系统词频里从头往后找，找到前256个不同的词频放到freq_codes_df_[256]中
   for (size_t code_pos = 0; code_pos < kCodeBookSize; code_pos++) {
     bool found = true;
 
@@ -316,6 +329,8 @@ bool NGram::build_unigram(LemmaEntry *lemma_arr, size_t lemma_num,
     lma_freq_idx_ = new CODEBOOK_TYPE[idx_num_];
   assert(lma_freq_idx_);
 
+  // 将系统词库的词频归拢到freq_codes_df_中的256个值上去，并经过多伦迭代，让
+  // Σ(系统词条的词频 - 其归拢值)最小
   iterate_codes(freqs, idx_num_, freq_codes_df_, lma_freq_idx_);
 
   delete [] freqs;
@@ -324,6 +339,7 @@ bool NGram::build_unigram(LemmaEntry *lemma_arr, size_t lemma_num,
     printf("\n------Language Model Unigram Codebook------\n");
   }
 
+  // freq_codes_ = log(freq_codes_df_) * kLogValueAmplifier
   for (size_t code_pos = 0; code_pos < kCodeBookSize; code_pos++) {
     double log_score = log(freq_codes_df_[code_pos]);
     float final_score = convert_psb_to_score(freq_codes_df_[code_pos]);

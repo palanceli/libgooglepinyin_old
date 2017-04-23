@@ -93,7 +93,7 @@ bool DictList::init_list(const SingleCharItem *scis, size_t scis_num,
   if (NULL != buf_)
     free(buf_);
 
-  // calculate the size
+  // calculate the size 生成start_pos_和start_id_
   size_t buf_size = calculate_size(lemma_arr, lemma_num);
   if (0 == buf_size)
     return false;
@@ -101,7 +101,7 @@ bool DictList::init_list(const SingleCharItem *scis, size_t scis_num,
   if (!alloc_resource(buf_size, scis_num))
     return false;
 
-  fill_scis(scis, scis_num);
+  fill_scis(scis, scis_num); // 生成scis_hz_和scis_splid_
 
   // Copy the related content from the array to inner buffer
   fill_list(lemma_arr, lemma_num);
@@ -115,6 +115,9 @@ size_t DictList::calculate_size(const LemmaEntry* lemma_arr, size_t lemma_num) {
   size_t list_size = 0;
   size_t id_num = 0;
 
+  // 将系统词库中所有词条字串串成一个总串
+  // start_pos_[0..9] 记录1字词、2字词...10字词在总串中的偏移
+  // start_id_[0..9]记录1字词、2字词...10字词在lemma_arr中的偏移
   for (size_t i = 0; i < lemma_num; i++) {
     if (0 == i) {
       last_hz_len = lemma_arr[i].hz_str_len;
@@ -123,7 +126,7 @@ size_t DictList::calculate_size(const LemmaEntry* lemma_arr, size_t lemma_num) {
       assert(lemma_arr[0].idx_by_hz == 1);
 
       id_num++;
-      start_pos_[0] = 0;
+      start_pos_[0] = 0;  // 初始化1字词
       start_id_[0] = id_num;
 
       last_hz_len = 1;
@@ -136,7 +139,7 @@ size_t DictList::calculate_size(const LemmaEntry* lemma_arr, size_t lemma_num) {
       if (current_hz_len == last_hz_len) {
           list_size += current_hz_len;
           id_num++;
-      } else {
+      } else { // 当字数发生变化，记录偏移位置
         for (size_t len = last_hz_len; len < current_hz_len - 1; len++) {
           start_pos_[len] = start_pos_[len - 1];
           start_id_[len] = start_id_[len - 1];
@@ -152,7 +155,7 @@ size_t DictList::calculate_size(const LemmaEntry* lemma_arr, size_t lemma_num) {
       }
     }
   }
-
+  // 词库中没有达到的字数，偏移位置指向总串和lemma_arr的末尾
   for (size_t i = last_hz_len; i <= kMaxLemmaSize; i++) {
     if (0 == i) {
       start_pos_[0] = 0;
