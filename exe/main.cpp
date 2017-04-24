@@ -1,4 +1,4 @@
-/*
+ï»¿s/*
  * Copyright (C) 2009 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
     szUserDict = argv[2];
   }
 
-  bool ret = im_open_decoder(szSysDict, szUserDict);  // ¼ÓÔØ
+  bool ret = im_open_decoder(szSysDict, szUserDict);  // åŠ è½½
   assert(ret);
   im_set_max_lens(32, 16);
   char szLine[256];
@@ -55,13 +55,13 @@ int main(int argc, char* argv[])
       break;
     
     im_reset_search();
-    size_t nr = im_search(szLine, strlen(szLine)); // ²éÑ¯
+    size_t nr = im_search(szLine, strlen(szLine)); // æŸ¥è¯¢
     size_t size = 0;
-    printf("%s\n", im_get_sps_str(&size));  // »ñÈ¡²éÑ¯½á¹û¸öÊı
+    printf("%s\n", im_get_sps_str(&size));  // è·å–æŸ¥è¯¢ç»“æœä¸ªæ•°
     char16 str[64] = { 0 };
     for (auto i = 0; i < nr; i++)
     {
-      im_get_candidate(i, str, 32);         // »ñÈ¡²éÑ¯ºòÑ¡
+      im_get_candidate(i, str, 32);         // è·å–æŸ¥è¯¢å€™é€‰
 #ifdef WIN32
       const wchar_t* szCand = (const wchar_t*)str;
       wprintf(L"%s\n", szCand);
@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  im_close_decoder();                 // ¹Ø±Õ
+  im_close_decoder();                 // å…³é—­
 
 	return 0;
 }
