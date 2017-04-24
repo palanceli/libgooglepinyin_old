@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
     szUserDict = argv[2];
   }
 
-  bool ret = im_open_decoder(szSysDict, szUserDict);
+  bool ret = im_open_decoder(szSysDict, szUserDict);  // 加载
   assert(ret);
   im_set_max_lens(32, 16);
   char szLine[256];
@@ -47,13 +47,13 @@ int main(int argc, char* argv[])
       break;
     
     im_reset_search();
-    size_t nr = im_search(szLine, 8);
+    size_t nr = im_search(szLine, strlen(szLine)); // 查询
     size_t size = 0;
-    printf("%s\n", im_get_sps_str(&size));
+    printf("%s\n", im_get_sps_str(&size));  // 获取查询结果个数
     char16 str[64] = { 0 };
     for (auto i = 0; i < nr; i++)
     {
-      im_get_candidate(i, str, 32);
+      im_get_candidate(i, str, 32);         // 获取查询候选
       const wchar_t* szCand = (const wchar_t*)str;
       wprintf(L"%s\n", szCand);
       int j = 0;
@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  im_close_decoder();
+  im_close_decoder();                 // 关闭
 
 	return 0;
 }

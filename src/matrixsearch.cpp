@@ -932,9 +932,10 @@ bool MatrixSearch::prepare_add_char(char ch) {
 
   if (dmi_pool_used_ >= kDmiPoolSize) return false;
 
-  pys_[pys_decoded_len_] = ch;
+  pys_[pys_decoded_len_] = ch; // 往pys_追加拼音
   pys_decoded_len_++;
 
+  // 往matrix_追加一个数据块
   MatrixRow *mtrx_this_row = matrix_ + pys_decoded_len_;
   mtrx_this_row->mtrx_nd_pos = mtrx_nd_pool_used_;
   mtrx_this_row->mtrx_nd_num = 0;
@@ -966,7 +967,7 @@ void MatrixSearch::fill_dmi(DictMatchInfo *dmi, MileStoneHandle *handles,
 }
 
 bool MatrixSearch::add_char(char ch) {
-  if (!prepare_add_char(ch))
+  if (!prepare_add_char(ch)) // 往pys_追加拼音，往matrix_追加一块数据
     return false;
   return add_char_qwerty();
 }
