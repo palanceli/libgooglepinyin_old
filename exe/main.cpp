@@ -51,10 +51,15 @@ int main(int argc, char* argv[])
 #ifdef WIN32
     gets_s(szLine, 256);
 #else
-    gets(szLine);
+    fgets(szLine, 256, stdin);
 #endif
     if (strlen(szLine) == 0)
       break;
+    // 剪掉结尾的回车符号
+    for(auto i=0; i<strlen(szLine); i++){
+      if (szLine[i] == '\n')
+        szLine[i] = '\0';
+    }
     
     im_reset_search();
     size_t nr = im_search(szLine, strlen(szLine)); // 查询

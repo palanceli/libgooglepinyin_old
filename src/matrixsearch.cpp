@@ -438,6 +438,7 @@ size_t MatrixSearch::search(const char *py, size_t py_len) {
 
   reset_search(ch_pos, clear_fix, false, false);
 
+  // å°†è¾“å…¥çš„å­—ç¬¦è¿½åŠ åˆ°pys_
   memcpy(pys_ + ch_pos, py + ch_pos, py_len - ch_pos);
   pys_[py_len] = '\0';
 
@@ -932,10 +933,10 @@ bool MatrixSearch::prepare_add_char(char ch) {
 
   if (dmi_pool_used_ >= kDmiPoolSize) return false;
 
-  pys_[pys_decoded_len_] = ch; // Íùpys_×·¼ÓÆ´Òô
+  pys_[pys_decoded_len_] = ch; // å¾€pys_è¿½åŠ æ‹¼éŸ³
   pys_decoded_len_++;
 
-  // Íùmatrix_×·¼ÓÒ»¸öÊı¾İ¿é
+  // å¾€matrix_è¿½åŠ ä¸€ä¸ªæ•°æ®å—
   MatrixRow *mtrx_this_row = matrix_ + pys_decoded_len_;
   mtrx_this_row->mtrx_nd_pos = mtrx_nd_pool_used_;
   mtrx_this_row->mtrx_nd_num = 0;
@@ -967,7 +968,7 @@ void MatrixSearch::fill_dmi(DictMatchInfo *dmi, MileStoneHandle *handles,
 }
 
 bool MatrixSearch::add_char(char ch) {
-  if (!prepare_add_char(ch)) // Íùpys_×·¼ÓÆ´Òô£¬Íùmatrix_×·¼ÓÒ»¿éÊı¾İ
+  if (!prepare_add_char(ch)) // å¾€pys_è¿½åŠ æ‹¼éŸ³ï¼Œå¾€matrix_è¿½åŠ ä¸€ä¸ªæ•°æ®å—
     return false;
   return add_char_qwerty();
 }
