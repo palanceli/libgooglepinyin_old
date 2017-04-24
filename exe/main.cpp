@@ -1,4 +1,4 @@
-﻿s/*
+﻿/*
  * Copyright (C) 2009 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,14 +26,16 @@
 #endif
 
 #include <locale.h>
+#include <iostream>
+#include <codecvt>
 
 using namespace ime_pinyin;
 
 int main(int argc, char* argv[])
 {
   setlocale(LC_ALL, "");
-  char* szSysDict = "../build/data/dict_pinyin.dat";
-  char* szUserDict = "";
+  char const *szSysDict = "../build/data/dict_pinyin.dat";
+  char const *szUserDict = "";
   if (argc >= 3) {
     szSysDict = argv[1];
     szUserDict = argv[2];
@@ -66,9 +68,10 @@ int main(int argc, char* argv[])
       const wchar_t* szCand = (const wchar_t*)str;
       wprintf(L"%s\n", szCand);
 #else
+      std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+      std::string strCand = convert.to_bytes((char16_t*)str);
+      std::cout << i << "." << strCand << " ";
 #endif
-      int j = 0;
-      j++;
     }
   }
 
