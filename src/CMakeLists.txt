@@ -28,7 +28,9 @@ list(APPEND GOOGLEPINYIN_SRC ${SRC})
 message(STATUS "source files: " ${GOOGLEPINYIN_SRC})
 #*#*}}
 
+if (WIN32)
 include_directories(${PROJECT_SOURCE_DIR}/pthread/include)
+endif()
 
 #*#* {{
 if (ENABLE_DYNAMIC)

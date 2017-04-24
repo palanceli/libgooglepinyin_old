@@ -19,8 +19,12 @@
 #include "pinyinime.h"
 #include <cassert>
 #include <memory.h>
+
+#ifdef WIN32
 #include <Windows.h>
 #include <tchar.h>
+#endif
+
 #include <locale.h>
 
 using namespace ime_pinyin;
@@ -41,8 +45,12 @@ int main(int argc, char* argv[])
   char szLine[256];
 
   while (true) {
-    wprintf(L"\n.拼音 >");
+    printf("\n >");
+#ifdef WIN32
     gets_s(szLine, 256);
+#else
+    gets(szLine);
+#endif
     if (strlen(szLine) == 0)
       break;
     
@@ -54,8 +62,11 @@ int main(int argc, char* argv[])
     for (auto i = 0; i < nr; i++)
     {
       im_get_candidate(i, str, 32);         // 获取查询候选
+#ifdef WIN32
       const wchar_t* szCand = (const wchar_t*)str;
       wprintf(L"%s\n", szCand);
+#else
+#endif
       int j = 0;
       j++;
     }
