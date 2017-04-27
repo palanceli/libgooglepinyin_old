@@ -53,13 +53,13 @@ int main(int argc, char* argv[])
 #else
     fgets(szLine, 256, stdin);
 #endif
-    if (strlen(szLine) == 0)
-      break;
     // 剪掉结尾的回车符号
     for(auto i=0; i<strlen(szLine); i++){
       if (szLine[i] == '\n')
         szLine[i] = '\0';
     }
+    if (strlen(szLine) == 0)
+      break;
     
     im_reset_search();
     size_t nr = im_search(szLine, strlen(szLine)); // 查询
