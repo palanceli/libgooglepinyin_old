@@ -984,6 +984,8 @@ bool MatrixSearch::add_char_qwerty() {
     if (ext_len > pys_decoded_len_ - spl_start_[fixed_hzs_])
       continue;
 
+    // 这段代码需参考变量dmi_has_full_id的声明，它用来防止错误的"shoud ou"被扩展出来，
+    // 对于正确的"heng ao"或"lang a"，则是应该被接受的
     // Refer to the declaration of the variable dmi_has_full_id for the
     // explanation of this piece of code. In one word, it is used to prevent
     // from the unwise extending of "shoud ou" but allow the reasonable
