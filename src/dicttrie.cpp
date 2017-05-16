@@ -220,6 +220,7 @@ bool DictTrie::load_dict(FILE *fp) {
     return false;
 
   // The quick index for the first level sons
+  // splid_le0_index_缓存每一个音节对应到lema_nodes_le0的偏移
   uint16 last_splid = kFullSplIdStart;
   size_t last_pos = 0;
   for (size_t i = 1; i < lma_node_num_le0_; i++) {
@@ -312,6 +313,11 @@ bool DictTrie::load_dict_fd(int sys_fd, long start_offset,
   return true;
 }
 
+// 把node对应的所有词条信息填充到lpi_items中
+// node是词库trie数的一级节点，即lma_nodes_le0中的元素，
+// node->homo_idx_buf_off为该音节在按照spl_idx_arr排序的lemma_arr的偏移
+// lpi_items[lpi_num].id为词在DistList::buf_中的偏移
+// lpi_items[lpi_num].psb是词频
 size_t DictTrie::fill_lpi_buffer(LmaPsbItem lpi_items[], size_t lpi_max,
                                  LmaNodeLE0 *node) {
   size_t lpi_num = 0;
@@ -370,6 +376,7 @@ MileStoneHandle DictTrie::extend_dict(MileStoneHandle from_handle,
     return 0;
 
   // from LmaNodeLE0 (root) to LmaNodeLE0
+  // 将dep->id_start 以及之后的dep->id_num个音节，在词库trie树一级节点对应的词填入lpi_items中
   if (0 == from_handle) {
     assert(0 == dep->splids_extended);
     return extend_dict0(from_handle, dep, lpi_items, lpi_max, lpi_num);
@@ -400,6 +407,9 @@ MileStoneHandle DictTrie::extend_dict0(MileStoneHandle from_handle,
 
   // 2. Begin exgtending
   // 2.1 Get the LmaPsbItem list
+  // 遍历由id_start打头的所有音节
+  // splid_le0_index_缓存每一个音节对应到lema_nodes_le0的偏移
+  // 将这些音节对应的词条信息填充到lpi_items中
   LmaNodeLE0 *node = root_;
   size_t son_start = splid_le0_index_[id_start - kFullSplIdStart];
   size_t son_end = splid_le0_index_[id_start + id_num - kFullSplIdStart];
@@ -413,7 +423,7 @@ MileStoneHandle DictTrie::extend_dict0(MileStoneHandle from_handle,
       if (spl_trie_->is_half_id_yunmu(splid) && son_pos != son_start)
         need_lpi = false;
 
-      if (need_lpi)
+      if (need_lpi) // 把son对应的所有词条信息填充到lpi_items中
         *lpi_num += fill_lpi_buffer(lpi_items + (*lpi_num),
                                     lpi_max - *lpi_num, son);
     }
