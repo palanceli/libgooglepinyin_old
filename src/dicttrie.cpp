@@ -376,7 +376,8 @@ MileStoneHandle DictTrie::extend_dict(MileStoneHandle from_handle,
     return 0;
 
   // from LmaNodeLE0 (root) to LmaNodeLE0
-  // 将dep->id_start 以及之后的dep->id_num个音节，在词库trie树一级节点对应的词填入lpi_items中
+  // 将dep->id_start 以及之后的dep->id_num个音节，在词库trie树一级节点查找，
+  // 17将对应的词填入lpi_items中
   if (0 == from_handle) {
     assert(0 == dep->splids_extended);
     return extend_dict0(from_handle, dep, lpi_items, lpi_max, lpi_num);
@@ -707,6 +708,8 @@ size_t DictTrie::get_lpis(const uint16* splid_str, uint16 splid_str_len,
       for (size_t node_fr_pos = 0; node_fr_pos < node_fr_num; node_fr_pos++) {
         LmaNodeLE0 *node = node_fr_le0[node_fr_pos];
         assert(node == root_ && 1 == node_fr_num);
+        // splid_le0_index_是从spl_idx到lma_nodes_le0_偏移的快速索引，
+        // 根据首个拼音找到词库Trie数的入口
         size_t son_start = splid_le0_index_[id_start - kFullSplIdStart];
         size_t son_end =
             splid_le0_index_[id_start + id_num - kFullSplIdStart];

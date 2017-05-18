@@ -602,6 +602,7 @@ size_t MatrixSearch::get_candidate_num() {
   return 1 + lpi_total_;
 }
 
+// 首选从mtrx_nd_pool_中取；非首选从lpi_items_中取
 char16* MatrixSearch::get_candidate(size_t cand_id, char16 *cand_str,
                                     size_t max_len) {
   if (!inited_ || 0 == pys_decoded_len_ || NULL == cand_str)
@@ -979,7 +980,7 @@ bool MatrixSearch::add_char_qwerty() {
   bool spl_matched = false;
   uint16 longest_ext = 0;
   // Extend the search matrix, from the oldest unfixed row. ext_len means
-  // extending length.
+  // extending length. kMaxPinyinSize = 6
   for (uint16 ext_len = kMaxPinyinSize + 1; ext_len > 0; ext_len--) {
     if (ext_len > pys_decoded_len_ - spl_start_[fixed_hzs_])
       continue;
@@ -1013,6 +1014,7 @@ bool MatrixSearch::add_char_qwerty() {
     // 2. Get spelling id(s) for the last ext_len chars.
     uint16 spl_idx;
     bool is_pre = false;
+    // 在spl_str中查到音节id
     spl_idx = spl_parser_->get_splid_by_str(pys_ + oldrow,
                                             ext_len, &is_pre);
     if (is_pre)
@@ -1184,14 +1186,14 @@ void MatrixSearch::prepare_candidates() {
   if (kPrintDebug0) {
     printf("-----Prepare candidates, score:\n");
     for (size_t a = 0; a < lpi_total_; a++) {
-      printf("[%03d]%d    ", a, lpi_items_[a].psb);
+      printf("[%03lu: %5d, %5d] ", a, lpi_items_[a].id, lpi_items_[a].psb);
       if ((a + 1) % 6 == 0) printf("\n");
     }
     printf("\n");
   }
 
   if (kPrintDebug0) {
-    printf("--- lpi_total_ = %d\n", lpi_total_);
+    printf("--- lpi_total_ = %lu\n", lpi_total_);
   }
 }
 
@@ -1404,6 +1406,7 @@ size_t MatrixSearch::get_spl_start(const uint16 *&spl_start) {
   return spl_id_num_;
 }
 
+// 查询用户词库和系统词库，将结果保存到lpi_items_和dmi_pool_
 size_t MatrixSearch::extend_dmi(DictExtPara *dep, DictMatchInfo *dmi_s) {
   if (dmi_pool_used_ >= kDmiPoolSize) return 0;
 
@@ -1470,7 +1473,7 @@ size_t MatrixSearch::extend_dmi(DictExtPara *dep, DictMatchInfo *dmi_s) {
     if (dmi_pool_used_ >= kDmiPoolSize) return 0;
 
     DictMatchInfo *dmi_add = dmi_pool_ + dmi_pool_used_;
-    if (NULL == dmi_s) {
+    if (NULL == dmi_s) { // 将参数内容填充到dmi_add中
       fill_dmi(dmi_add, handles,
                (PoolPosType)-1, splid,
                1, 1, dep->splid_end_split, dep->ext_len,
@@ -1539,6 +1542,7 @@ size_t MatrixSearch::extend_dmi_c(DictExtPara *dep, DictMatchInfo *dmi_s) {
   return 0;
 }
 
+// 把lpi_items中的lpi_num个元素拷贝到mtrx_nd_pool_中
 size_t MatrixSearch::extend_mtrx_nd(MatrixNode *mtrx_nd, LmaPsbItem lpi_items[],
                                     size_t lpi_num, PoolPosType dmi_fr,
                                     size_t res_row) {
@@ -1710,7 +1714,7 @@ size_t MatrixSearch::get_lpis(const uint16* splid_str, size_t splid_str_len,
                               const char16 *pfullsent, bool sort_by_psb) {
   if (splid_str_len > kMaxLemmaSize)
     return 0;
-
+  // 将splid_str对应的词信息填充到lma_buf
   size_t num1 = dict_trie_->get_lpis(splid_str, splid_str_len,
                                      lma_buf, max_lma_buf);
   size_t num2 = 0;

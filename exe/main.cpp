@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
     im_reset_search();
     size_t nr = im_search(szLine, strlen(szLine)); // 查询
     size_t size = 0;
-    printf("%s\n", im_get_sps_str(&size));  // 获取查询结果个数
+    printf("%s\n", im_get_sps_str(&size));  // 返回拼音串
     char16 str[64] = { 0 };
     for (auto i = 0; i < nr; i++)
     {
