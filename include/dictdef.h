@@ -36,10 +36,19 @@ typedef int32_t  int32;
 typedef int64_t  int64;
 typedef uint64_t uint64;
 
-const bool kPrintDebug0 = true;
-const bool kPrintDebug1 = true;
-const bool kPrintDebug2 = true;
+const bool kPrintDebug0 = false;
+const bool kPrintDebug1 = false;
+const bool kPrintDebug2 = false;
+const bool kDbgStake = true;
+    
+#define LOGBEGIN(FORMAT, ...) \
+if(kDbgStake){\
+const char *fileName = basename(__FILE__);\
+printf("[%s:%d %s] "FORMAT"\n", fileName, __LINE__, __FUNCTION__, ##__VA_ARGS__);
 
+#define LOGEND \
+printf("\n");}
+    
 // The max length of a lemma.
 const size_t kMaxLemmaSize = 8;
 

@@ -450,6 +450,8 @@ class MatrixSearch {
   size_t get_predicts(const char16 fixed_buf[],
                       char16 predict_buf[][kMaxPredictSize + 1],
                       size_t buf_len);
+    void log_matrix();
+    void log_LmaPsbItem(LmaPsbItem* lma_buf, size_t num);
 };
 }
 
