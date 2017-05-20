@@ -1802,6 +1802,8 @@ namespace ime_pinyin {
     void MatrixSearch::log_LmaPsbItem(LmaPsbItem* lma_buf, size_t num){
         printf("id    lma_len psb         hz py\n");
         for(auto i=0; i<num; i++){
+            if(i>20)
+                break;
             printf("%-5d %-7d %-5.0hu ", lma_buf[i].id, lma_buf[i].lma_len,
                    lma_buf[i].psb);
             
