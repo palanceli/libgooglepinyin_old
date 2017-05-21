@@ -54,6 +54,84 @@ namespace ime_pinyin {
         free_resource();
     }
     
+    void MatrixSearch::log_matrix(){
+        printf("mtrx_nd_pos dmi_pos mtrx_nd_num dmi_num dmi_has_full_id mtrx_nd_fixed\n");
+        for(auto row=0; row<=pys_decoded_len_; row++){
+            MatrixRow *mr = matrix_ + row;
+            printf("%-11d %-7d %-11d %-7d %-15d ",
+                   mr->mtrx_nd_pos, mr->dmi_pos, mr->mtrx_nd_num,
+                   mr->dmi_num, mr->dmi_has_full_id);
+            if(mr->mtrx_nd_fixed == NULL)
+                printf("NULL         \n");
+            else{
+                auto idx = mr->mtrx_nd_fixed - mtrx_nd_pool_;
+                printf("%-13ld\n", idx);
+            }
+        }
+    }
+    
+    void MatrixSearch::log_LmaPsbItem(LmaPsbItem* lma_buf, size_t num){
+        printf("id    lma_len psb         hz py\n");
+        for(auto i=0; i<num; i++){
+            if(i>20)
+                break;
+            printf("%-5d %-7d %-5.0hu ", lma_buf[i].id, lma_buf[i].lma_len,
+                   lma_buf[i].psb);
+            
+            char16 str[kMaxLemmaSize] = {0};
+            uint16 str_len = get_lemma_str(lma_buf[i].id, str, kMaxLemmaSize + 1);
+            std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+            std::string strTemp =  convert.to_bytes((char16_t*)str);
+            printf(" %10s", strTemp.c_str());
+            uint16 splids[32] = {0};
+            str_len = get_lemma_splids(lma_buf[i].id, splids, 32, false);
+            strTemp = "";
+            for(auto i=0; i<str_len; i++){
+                strTemp += ((SpellingTrie*)spl_trie_)->get_spelling_str(splids[i]);
+                strTemp += " ";
+            }
+            printf(" %-10s\n", strTemp.c_str());
+        }
+    }
+    
+    void MatrixSearch::log_DictExtPara(){
+        printf("splids     ext_len splid_end_split id_start id_num splstr\n");
+        char szSplids[256] = {0};
+        char szTemp[16] = {0};
+        sprintf(szSplids, "{");
+        for(auto i=0; i<40 && dep_->splids[i]>0; i++){
+            sprintf(szTemp, "%d ", dep_->splids[i]);
+            strcat(szSplids, szTemp);
+        }
+        strcat(szSplids, "}");
+        printf("%-10s %-7d %-15d %-8d %-6d {", szSplids, dep_->ext_len,
+               dep_->splid_end_split, dep_->id_start, dep_->id_num);
+        for(auto i=0; i<kMaxSearchSteps; i++){
+            if(dep_->splids[i] == 0)
+                break;
+            printf("%s ", ((SpellingTrie*)spl_trie_)->get_spelling_str(dep_->splids[i]));
+        }
+        printf("}\n");
+    }
+    
+    void MatrixSearch::log_DictMatchInfo(){
+        printf("handles dmi_fr spl_id dict_level c_phrase splid_end_split splstr_len all_full_id\n");
+        for(auto i=0; i<=dmi_pool_used_; i++){
+            DictMatchInfo *dmi = dmi_pool_ + i;
+            printf("{%d %d}   %-6d %-6d %-10d %-8d %-15d %-10d %-11d\n",
+                   dmi->dict_handles[0], dmi->dict_handles[1], dmi->dmi_fr,
+                   dmi->spl_id, dmi->dict_level, dmi->c_phrase, dmi->splid_end_split,
+                   dmi->splstr_len, dmi->all_full_id);
+        }
+    }
+    template<typename T>
+    void MatrixSearch::log_array(T arr[], int num, const char* name){
+        printf(" idx %s[idx]，共%d个：\n", name, num);
+        for(auto i=0; i<num; i++){
+            printf("%4d %-5d\n", i, arr[i]);
+        }
+    }
+    
     void MatrixSearch::reset_pointers_to_null() {
         dict_trie_ = NULL;
         user_dict_ = NULL;
@@ -982,22 +1060,6 @@ namespace ime_pinyin {
         return add_char_qwerty();
     }
     
-    void MatrixSearch::log_matrix(){
-        printf("mtrx_nd_pos dmi_pos mtrx_nd_num dmi_num dmi_has_full_id mtrx_nd_fixed\n");
-        for(auto row=0; row<=pys_decoded_len_; row++){
-            MatrixRow *mr = matrix_ + row;
-            printf("%-11d %-7d %-11d %-7d %-15d ",
-                   mr->mtrx_nd_pos, mr->dmi_pos, mr->mtrx_nd_num,
-                   mr->dmi_num, mr->dmi_has_full_id);
-            if(mr->mtrx_nd_fixed == NULL)
-                printf("NULL         \n");
-            else{
-                auto idx = mr->mtrx_nd_fixed - mtrx_nd_pool_;
-                printf("%-13ld\n", idx);
-            }
-        }
-    }
-    
     bool MatrixSearch::add_char_qwerty() {
         matrix_[pys_decoded_len_].mtrx_nd_num = 0;
         
@@ -1116,29 +1178,15 @@ namespace ime_pinyin {
                     assert(dep_->id_num > 0);
                 }
                 LOGBEGIN("更新dep_：");
-                printf("splids     ext_len splid_end_split id_num id_start id_num splstr\n");
-                char szSplids[256] = {0};
-                char szTemp[16] = {0};
-                sprintf(szSplids, "{");
-                for(auto i=0; i<40 && dep_->splids[i]>0; i++){
-                    sprintf(szTemp, "%d ", dep_->splids[i]);
-                    strcat(szSplids, szTemp);
-                }
-                strcat(szSplids, "}");
-                printf("%-10s %-7d %-15d %-6d %-8d %-6d {", szSplids, dep_->ext_len,
-                       dep_->splid_end_split, dep_->id_num, dep_->id_start,
-                       dep_->id_num);
-                for(auto i=0; i<kMaxSearchSteps; i++){
-                    if(dep_->splids[i] == 0)
-                        break;
-                    printf("%s ", ((SpellingTrie*)spl_trie_)->get_spelling_str(dep_->splids[i]));
-                }
-                printf("}\n");
+                log_DictExtPara();
                 LOGEND
                 
                 uint16 new_dmi_num;
                 
                 new_dmi_num = extend_dmi(dep_, dmi);
+                LOGBEGIN("填充lpi_items_，共%d个", lpi_total_);
+                log_LmaPsbItem(lpi_items_, lpi_total_);
+                LOGEND
                 
                 if (new_dmi_num > 0) {
                     if (dmi_c_phrase_) {
@@ -1227,7 +1275,7 @@ namespace ime_pinyin {
             lma_size--;
         }
         
-        LOGBEGIN("填充lpi_items_");
+        LOGBEGIN("填充lpi_items_， 共%d个", lpi_total_);
         log_LmaPsbItem(lpi_items_, lpi_total_);
         LOGEND
         // Sort those partially-matched items by their unified scores.
@@ -1399,6 +1447,12 @@ namespace ime_pinyin {
             
             mtrx_nd = mtrx_nd->from;
         }
+        LOGBEGIN("spl 和 lma 信息：")
+        log_array(spl_start_, spl_id_num_, "spl_start_");
+        log_array(spl_id_, spl_id_num_, "spl_id_");
+        log_array(lma_start_, lma_id_num_, "lma_start_");
+        log_array(lma_id_, lma_id_num_, "lma_id_");
+        LOGEND
         
         // Reverse the result of spelling info
         for (size_t pos = fixed_hzs_;
@@ -1438,6 +1492,12 @@ namespace ime_pinyin {
                 lma_start_[pos] = lma_start_[pos - 1] + lma_start_[pos] -
                 lma_start_[fixed_lmas_];
         }
+        LOGBEGIN("经过Reverse处理后的 spl 和 lma 信息：")
+        log_array(spl_start_, spl_id_num_, "spl_start_");
+        log_array(spl_id_, spl_id_num_, "spl_id_");
+        log_array(lma_start_, lma_id_num_, "lma_start_");
+        log_array(lma_id_, lma_id_num_, "lma_id_");
+        LOGEND
         
         // Find the last fixed position
         fixed_hzs_ = 0;
@@ -1494,6 +1554,9 @@ namespace ime_pinyin {
         if (from_h[0] > 0 || NULL == dmi_s) {
             handles[0] = dict_trie_->extend_dict(from_h[0], dep, lpi_items_,
                                                  kMaxLmaPsbItems, &lpi_num);
+            LOGBEGIN("填充lpi_items_");
+            log_LmaPsbItem(lpi_items_, lpi_num);
+            LOGEND
         }
         if (handles[0] > 0)
             lpi_total_ = lpi_num;
@@ -1540,14 +1603,7 @@ namespace ime_pinyin {
             ret_val = 1;
         }
         LOGBEGIN("填充dmi_pool_")
-        printf("handles dmi_fr spl_id dict_level c_phrase splid_end_split splstr_len all_full_id\n");
-        for(auto i=0; i<=dmi_pool_used_; i++){
-            DictMatchInfo *dmi = dmi_pool_ + i;
-            printf("{%d %d}   %-6d %-6d %-10d %-8d %-15d %-10d %-11d\n",
-                   dmi->dict_handles[0], dmi->dict_handles[1], dmi->dmi_fr,
-                   dmi->spl_id, dmi->dict_level, dmi->c_phrase, dmi->splid_end_split,
-                   dmi->splstr_len, dmi->all_full_id);
-        }
+        log_DictMatchInfo();
         LOGEND
         
         if (!cached) {
@@ -1565,6 +1621,8 @@ namespace ime_pinyin {
             assert(spl_trie_->is_half_id(splid));
             lpi_total_ = lpi_cache.get_cache(splid, lpi_items_, kMaxLmaPsbItems);
         }
+        LOGBEGIN("启动cache并更新lpi_total_=%d", lpi_total_);
+        LOGEND
         
         return ret_val;
     }
@@ -1765,7 +1823,9 @@ namespace ime_pinyin {
         if (kPrintDebug1) {
             printf("<<==============Sentence DMI (reverse order) end=============\n");
         }
-        
+        LOGBEGIN("根据mtrx_nd组织idxs：");
+        log_array(idxs, id_num, "idxs");
+        LOGEND
         size_t ret_pos = 0;
         do {
             id_num--;
@@ -1799,29 +1859,6 @@ namespace ime_pinyin {
         return cand_str;
     }
     
-    void MatrixSearch::log_LmaPsbItem(LmaPsbItem* lma_buf, size_t num){
-        printf("id    lma_len psb         hz py\n");
-        for(auto i=0; i<num; i++){
-            if(i>20)
-                break;
-            printf("%-5d %-7d %-5.0hu ", lma_buf[i].id, lma_buf[i].lma_len,
-                   lma_buf[i].psb);
-            
-            char16 str[kMaxLemmaSize] = {0};
-            uint16 str_len = get_lemma_str(lma_buf[i].id, str, kMaxLemmaSize + 1);
-            std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-            std::string strTemp =  convert.to_bytes((char16_t*)str);
-            printf(" %10s", strTemp.c_str());
-            uint16 splids[32] = {0};
-            str_len = get_lemma_splids(lma_buf[i].id, splids, 32, false);
-            strTemp = "";
-            for(auto i=0; i<str_len; i++){
-                strTemp += ((SpellingTrie*)spl_trie_)->get_spelling_str(splids[i]);
-                strTemp += " ";
-            }
-            printf(" %-10s\n", strTemp.c_str());
-        }
-    }
     
     size_t MatrixSearch::get_lpis(const uint16* splid_str, size_t splid_str_len,
                                   LmaPsbItem* lma_buf, size_t max_lma_buf,
@@ -1842,7 +1879,7 @@ namespace ime_pinyin {
         if (0 == num)
             return 0;
         
-        LOGBEGIN("填充lma_buf");
+        LOGBEGIN("填充lma_buf， 共%d个", num);
         log_LmaPsbItem(lma_buf, num);
         LOGEND
         // Remove repeated items.
@@ -1881,6 +1918,7 @@ namespace ime_pinyin {
             // Update the result number
             num = remain_num;
         } else {
+            // 之前把half扩展成了full，不同的音节可能对应同一个字，因此这里需要排重
             // For single character, some characters have more than one spelling, for
             // example, "de" and "di" are all valid for a Chinese character, so when
             // the user input  "d", repeated items are generated.
@@ -1923,7 +1961,7 @@ namespace ime_pinyin {
         if (sort_by_psb) {
             myqsort(lma_buf, num, sizeof(LmaPsbItem), cmp_lpi_with_psb);
         }
-        LOGBEGIN("按照psb排序lma_buf")
+        LOGBEGIN("排重后的lma_buf， 共%d个", num);
         log_LmaPsbItem(lma_buf, num);
         LOGEND
         return num;
