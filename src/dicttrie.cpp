@@ -338,7 +338,7 @@ namespace ime_pinyin {
         LOGBEGIN("填充lpi_items， 共%d个：", lpi_num);
         printf("id    lma_len psb         hz py\n");
         for(auto i=0; i<lpi_num; i++){
-            if(i>20)
+            if(i>7)
                 break;
             printf("%-5d %-7d %-5.0hu ", lpi_items[i].id, lpi_items[i].lma_len,
                    lpi_items[i].psb);
