@@ -73,7 +73,7 @@ namespace ime_pinyin {
     void MatrixSearch::log_LmaPsbItem(LmaPsbItem* lma_buf, size_t num){
         printf("id    lma_len psb         hz py\n");
         for(auto i=0; i<num; i++){
-            if(i>20)
+            if(i>7)
                 break;
             printf("%-5d %-7d %-5.0hu ", lma_buf[i].id, lma_buf[i].lma_len,
                    lma_buf[i].psb);
@@ -1103,6 +1103,10 @@ namespace ime_pinyin {
             // 在spl_str中查到音节id
             spl_idx = spl_parser_->get_splid_by_str(pys_ + oldrow,
                                                     ext_len, &is_pre);
+            char pinyin[512] = {0};
+            strncpy(pinyin, pys_ + oldrow, ext_len);
+            LOGBEGIN("pinyin:%s", pinyin);
+            LOGEND 
             if (is_pre)
                 spl_matched = true;
             
@@ -1110,7 +1114,8 @@ namespace ime_pinyin {
                 continue;
             
             bool splid_end_split = is_split_at(oldrow + ext_len);
-            LOGBEGIN("spl_idx=%d", spl_idx);
+            
+            LOGBEGIN("spl_idx=%d -> %s", spl_idx, ((SpellingTrie*)spl_trie_)->get_spelling_str(spl_idx));
             LOGEND
             // 3. Extend the DMI nodes of that old row
             // + 1 is to extend an extra node from the root
