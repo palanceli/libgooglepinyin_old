@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2009 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,7 +34,7 @@ using namespace ime_pinyin;
 int main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
-    char const *szSysDict = "../build/data/dict_pinyin.dat";
+    char const *szSysDict = "../../data/dict_pinyin.dat";
     char const *szUserDict = "";
     if (argc >= 3) {
         szSysDict = argv[1];
