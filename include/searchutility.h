@@ -51,10 +51,12 @@ typedef struct {
   uint16 his_len;  // The length of the history used to do the prediction.
 } NPredictItem, *PNPredictItem;
 
+// 该参数用于词典查找，所有词典均接收相同的DictExtPara参数，由词典指定MileStoneHandle
 // Parameter structure used to extend in a dictionary. All dictionaries
 // receives the same DictExtPara and a dictionary specific MileStoneHandle for
 // extending.
 //
+// 当用户输入一个新的字符，AtomDictBase::extend_dict()将针对每个词典至少调用1次
 // When the user inputs a new character, AtomDictBase::extend_dict() will be
 // called at least once for each dictionary.
 //
