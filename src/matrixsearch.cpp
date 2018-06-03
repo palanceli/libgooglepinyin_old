@@ -1666,6 +1666,10 @@ namespace ime_pinyin {
         return 0;
     }
     
+    static bool extracted(ime_pinyin::MatrixNode *mtrx_nd) {
+        return ;
+    }
+    
     // 把lpi_items中的lpi_num个元素拷贝到mtrx_nd_pool_中
     size_t MatrixSearch::extend_mtrx_nd(MatrixNode *mtrx_nd, LmaPsbItem lpi_items[],
                                         size_t lpi_num, PoolPosType dmi_fr,
