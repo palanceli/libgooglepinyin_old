@@ -28,11 +28,13 @@ set(includedir  ${CMAKE_INSTALL_PREFIX}/include/googlepinyin)
 set(CMAKE_C_FLAGS "-Wall ${CMAKE_C_FLAGS}")
 set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined ${CMAKE_SHARED_LINKER_FLAG}")
 
+
 add_subdirectory(src)
 add_subdirectory(exe)
 add_subdirectory(tools)
 add_subdirectory(include)
 add_subdirectory(data)
+add_subdirectory(glog)
 
 
 # 构建unittest的可执行项目
@@ -50,4 +52,4 @@ endforeach(folder)
 LIST(REMOVE_ITEM ALL_SRC "${PROJECT_SOURCE_DIR}/exe/main.cpp")
 LIST(REMOVE_ITEM ALL_SRC "${PROJECT_SOURCE_DIR}/tools/pinyinime_dictbuilder.cpp")
 add_executable(myexe_test ${ALL_SRC})
-target_link_libraries(myexe_test gtest_main)
+target_link_libraries(myexe_test gtest_main glog)

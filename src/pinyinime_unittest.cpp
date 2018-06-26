@@ -30,6 +30,7 @@
 #include <codecvt>
 
 #include <gtest/gtest.h>
+#include <glog/logging.h>
 #include "../include/dicttrie.h"
 #include <unistd.h>
 
@@ -39,7 +40,6 @@ namespace googlepinyin_test{
     class PinyinImeTest : public testing::Test{
     protected:
         static void SetUpTestCase(){
-            
         }
         static void TearDownTestCase(){
             
@@ -52,7 +52,7 @@ namespace googlepinyin_test{
             printf("Failed to get cwd\n");
             return;
         }
-        printf("cwd: %s\n", szDir);
+        LOG(INFO)<<"cwd: "<< szDir;
     }
     
     TEST_F(PinyinImeTest, TCBuildDict){
