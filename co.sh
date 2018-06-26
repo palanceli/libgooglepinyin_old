@@ -1,0 +1,1 @@
+svn co http://svn.sogou-inc.com/svn/sogouime/branch/private/libei/src/sgdxmodules/googletest-1.8.0 googletest

@@ -24,7 +24,11 @@ set(LIBGOOGLEPINYIN_ABI_MAJOR_VERSION "0")
 
 #*#*{{ 加入cpp文件和头文件
 file(GLOB_RECURSE SRC "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/include/*.h")
+file(GLOB_RECURSE TESTSRC "${PROJECT_SOURCE_DIR}/src/*_unittest.cpp" "${PROJECT_SOURCE_DIR}/include/*_unittest.h")
 list(APPEND GOOGLEPINYIN_SRC ${SRC})
+if (TESTSRC)
+	list(REMOVE_ITEM GOOGLEPINYIN_SRC ${TESTSRC})
+endif()
 message(STATUS "source files: " ${GOOGLEPINYIN_SRC})
 #*#*}}
 
