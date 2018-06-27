@@ -30,7 +30,7 @@
 #include <codecvt>
 
 #include <gtest/gtest.h>
-#include <glog/logging.h>
+#include "glog/logging.h"
 #include "../include/dicttrie.h"
 #include <unistd.h>
 
