@@ -3,12 +3,14 @@ cmake_minimum_required(VERSION 2.6)
 
 option(ENABLE_STATIC "Build static library" False)
 
-# find_package(GTest REQUIRED)
-# include_directories(${GTEST_INCLUDE_DIRS})
-find_package(gflags REQUIRED)
-include_directories (${gflags_INCLUDE_DIR})
-find_package(Glog REQUIRED)
-include_directories(BEFORE ${GLOG_INCLUDE_DIRS}) 
+#find_package(gflags REQUIRED)
+#include_directories (${gflags_INCLUDE_DIR})
+
+find_package(glog 0.3.5 REQUIRED)
+include_directories(${GLOG_INCLUDE_DIRS}) 
+
+find_package(GTest REQUIRED)
+include_directories(${GTEST_INCLUDE_DIRS})
 
 # uninstall target
 configure_file(
@@ -41,12 +43,11 @@ add_subdirectory(exe)
 add_subdirectory(tools)
 add_subdirectory(include)
 add_subdirectory(data)
-# add_subdirectory(glog)
 
 
 # 构建unittest的可执行项目
-add_subdirectory(googletest)
-include_directories(${PROJECT_SOURCE_DIR}/googletest/googletest/include)
+# add_subdirectory(googletest)
+#include_directories(${PROJECT_SOURCE_DIR}/googletest/googletest/include)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # 收集各子项的*.cpp、*.h文件
@@ -61,7 +62,7 @@ LIST(REMOVE_ITEM ALL_SRC "${PROJECT_SOURCE_DIR}/tools/pinyinime_dictbuilder.cpp"
 add_executable(myexe_test ${ALL_SRC})
 
 set(LINKER_LIBS "")
-list(APPEND LINKER_LIBS "gtest_main")
 list(APPEND LINKER_LIBS ${GFLAGS_LIBRARIES})
-list(APPEND LINKER_LIBS ${GLOG_LIBRARIES})
+list(APPEND LINKER_LIBS glog::glog)
+list(APPEND LINKER_LIBS  ${GTEST_BOTH_LIBRARIES})
 target_link_libraries(myexe_test ${LINKER_LIBS})
