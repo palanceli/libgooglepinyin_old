@@ -14,22 +14,10 @@
 # git checkout v2.2.1
 
 # cd modules/googletest
-# mkdir _build
-# cd _build
-# cmake ..
-# make 
-# make install
+# mkdir _build && cd _build && cmake .. && make && make install
 
 # cd modules/gflags
-# mkdir _build
-# cd _build
-# cmake ..
-# make
-# make install
+# mkdir _build && cd _build && cmake .. && make && make install
 
 # cd modules/glog
-# mkdir _build
-# cd _build
-# cmake ..
-# make
-# make install
+# mkdir _build && cd _build && cmake .. && make && make install
