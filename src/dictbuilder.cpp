@@ -366,6 +366,7 @@ void DictBuilder::free_resource() {
   homo_idx_num_gt1_ = 0;
 }
 
+// rawdict_utf16_65105_freq.txt => lemma_arr_
 size_t DictBuilder::read_raw_dict(const char* fn_raw,
                                   const char *fn_validhzs,
                                   size_t max_item) {
