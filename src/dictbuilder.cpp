@@ -286,7 +286,7 @@ bool DictBuilder::str_in_hanzis_list(const char16 *hzs, size_t hzs_len,
   return true;
 }
 
-void DictBuilder::get_top_lemmas() { // È¡³ö´ÊÆµ×î´óµÄtop_lmas_num_¸ö£¬ÓÉ´óµ½Ğ¡ÅÅµ½top_lmas_ÖĞ
+void DictBuilder::get_top_lemmas() { // È¡ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½top_lmas_num_ï¿½ï¿½ï¿½ï¿½ï¿½É´ï¿½Ğ¡ï¿½Åµï¿½top_lmas_ï¿½ï¿½
   top_lmas_num_ = 0;
   if (NULL == lemma_arr_)
     return;
@@ -303,7 +303,7 @@ void DictBuilder::get_top_lemmas() { // È¡³ö´ÊÆµ×î´óµÄtop_lmas_num_¸ö£¬ÓÉ´óµ½Ğ¡Å
         top_lmas_num_ += 1;
 
       size_t move_pos;
-      // ½«top_lmas_°´ÕÕÓÉ´óµ½Ğ¡ÅÅĞò
+      // ï¿½ï¿½top_lmas_ï¿½ï¿½ï¿½ï¿½ï¿½É´ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½
       for (move_pos = top_lmas_num_ - 1; move_pos > 0; move_pos--) {
         top_lmas_[move_pos] = top_lmas_[move_pos - 1];
         if (0 == move_pos - 1 ||
@@ -373,7 +373,7 @@ size_t DictBuilder::read_raw_dict(const char* fn_raw,
   if (NULL == fn_raw) return 0;
 
   Utf16Reader utf16_reader;
-  // ´ò¿ªÎÄ¼ş£¬Í¬Ê±¸ù¾İµÚ¶ş¸ö²ÎÊıÉêÇëbuffer£¬ÒÔ±¸Ê¢·Å¶Á³öµÄÊı¾İ
+  // è¯»å–æ–‡ä»¶ rawdict_utf16_65105_freq.txt
   if (!utf16_reader.open(fn_raw, kReadBufLen * 10))
     return false;
 
@@ -387,7 +387,7 @@ size_t DictBuilder::read_raw_dict(const char* fn_raw,
     utf16_reader.close();
   }
 
-  // Read the valid Hanzi list.
+  // è¯»å–æ–‡ä»¶ valid_utf16.txtï¼Œå¾—åˆ°æ‰€æœ‰æ±‰å­—
   char16 *valid_hzs = NULL;
   size_t valid_hzs_num = 0;
   valid_hzs = read_valid_hanzis(fn_validhzs, &valid_hzs_num);
@@ -404,7 +404,7 @@ size_t DictBuilder::read_raw_dict(const char* fn_raw,
     char16 *token;
     char16 *to_tokenize = read_buf;
 
-    // Get the Hanzi string
+    // Get the Hanzi string è¯æ¡
     token = utf16_strtok(to_tokenize, &token_size, &to_tokenize);
     if (NULL == token) {
       free_resource();
@@ -419,7 +419,7 @@ size_t DictBuilder::read_raw_dict(const char* fn_raw,
       continue;
     }
 
-    if (lemma_size > 4) {
+    if (lemma_size > 4) { // è¯åº“åŒ…å«çš„æœ€é•¿è¯æ¡ä¸º4å­—è¯
       i--;
       continue;
     }
@@ -429,7 +429,7 @@ size_t DictBuilder::read_raw_dict(const char* fn_raw,
 
     lemma_arr_[i].hz_str_len = token_size;
 
-    // Get the freq string
+    // Get the freq string è¯é¢‘
     token = utf16_strtok(to_tokenize, &token_size, &to_tokenize);
     if (NULL == token) {
       free_resource();
@@ -462,7 +462,7 @@ size_t DictBuilder::read_raw_dict(const char* fn_raw,
       }
     }
 
-    // Get spelling String
+    // Get spelling String æ‹¼éŸ³
     bool spelling_not_support = false;
     for (size_t hz_pos = 0; hz_pos < (size_t)lemma_arr_[i].hz_str_len;
          hz_pos++) {
@@ -594,7 +594,7 @@ bool DictBuilder::build_dict(const char *fn_raw,
   // sort the lemma items according to the spelling idx string
   myqsort(lemma_arr_, lemma_num_, sizeof(LemmaEntry), compare_py);
 
-  get_top_lemmas(); // È¡³ö´ÊÆµ×î´óµÄtop_lmas_num_¸öLemmaEntry£¬ÓÉ´óµ½Ğ¡ÅÅµ½top_lmas_ÖĞ
+  get_top_lemmas(); // È¡ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½top_lmas_num_ï¿½ï¿½LemmaEntryï¿½ï¿½ï¿½É´ï¿½Ğ¡ï¿½Åµï¿½top_lmas_ï¿½ï¿½
   //if (kPrintDebug0) {
   //  for (auto i = 0; i < lemma_num_; i++) {
   //    wchar_t szMsg[256] = { 0 };
@@ -657,17 +657,17 @@ bool DictBuilder::build_dict(const char *fn_raw,
   dict_trie->lma_idx_buf_len_ = lma_idx_num * kLemmaIdSize;
   dict_trie->top_lmas_num_ = top_lmas_num_;
 
-  // ½«lma_nodes_le0¿½±´µ½dict_trie->root_£¬½«lma_node_ge1_¿½±´µ½dict_trie->nodes_ge1_
+  // ï¿½ï¿½lma_nodes_le0ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½dict_trie->root_ï¿½ï¿½ï¿½ï¿½lma_node_ge1_ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½dict_trie->nodes_ge1_
   memcpy(dict_trie->root_, lma_nodes_le0_,
          sizeof(LmaNodeLE0) * lma_nds_used_num_le0_);
   memcpy(dict_trie->nodes_ge1_, lma_nodes_ge1_,
          sizeof(LmaNodeGE1) * lma_nds_used_num_ge1_);
-  // ½«homo_idx_buf_¿½±´µ½dict_trie->lma_idx_buf_£¬¸ÃÊı×éµÄÃ¿¸öÔªËØÊÇ3¸ö×Ö½Ú
+  // ï¿½ï¿½homo_idx_buf_ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½dict_trie->lma_idx_buf_ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½3ï¿½ï¿½ï¿½Ö½ï¿½
   for (size_t pos = 0; pos < homo_idx_num_eq1_ + homo_idx_num_gt1_; pos++) {
     id_to_charbuf(dict_trie->lma_idx_buf_ + pos * kLemmaIdSize,
                   homo_idx_buf_[pos]);
   }
-  // dict_trie->lma_idx_buf_Ä©¶Ë10¸öÔªËØÊÇ´ÊÆµ×î¸ßµÄtop10ÏµÍ³´Ê
+  // dict_trie->lma_idx_buf_Ä©ï¿½ï¿½10ï¿½ï¿½Ôªï¿½ï¿½ï¿½Ç´ï¿½Æµï¿½ï¿½ßµï¿½top10ÏµÍ³ï¿½ï¿½
   for (size_t pos = homo_idx_num_eq1_ + homo_idx_num_gt1_;
        pos < lma_idx_num; pos++) {
     LemmaIdType idx =
@@ -788,21 +788,21 @@ size_t DictBuilder::build_scis() {
       scis_[scis_num_].splid.half_splid =
           spl_trie.full_to_half(scis_[scis_num_].splid.full_splid);
       if (1 == hz_num)
-        scis_[scis_num_].freq = lemma_arr_[pos].freq; // ÔÚ´Ê¿âÀï¾ÍÊÇµ¥×ÖµÄ£¬×ÖÆµ=´ÊÆµ
+        scis_[scis_num_].freq = lemma_arr_[pos].freq; // ï¿½Ú´Ê¿ï¿½ï¿½ï¿½ï¿½ï¿½Çµï¿½ï¿½ÖµÄ£ï¿½ï¿½ï¿½Æµ=ï¿½ï¿½Æµ
       else
-        scis_[scis_num_].freq = 0.000001;             // ·ñÔò¸ø¸ö¼«Ğ¡Öµ
+        scis_[scis_num_].freq = 0.000001;             // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¡Öµ
       scis_num_++;
     }
   }
 
-  myqsort(scis_, scis_num_, sizeof(SingleCharItem), cmp_scis_hz_splid_freq); // °´ÕÕºº×ÖÅÅĞò£¬Èç¹û×ÖÏàÍ¬Ôò¿´Òô£¬Èç¹ûÒôÒ²ÏàÍ¬Ôò¿´×ÖÆµ
+  myqsort(scis_, scis_num_, sizeof(SingleCharItem), cmp_scis_hz_splid_freq); // ï¿½ï¿½ï¿½Õºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò²ï¿½ï¿½Í¬ï¿½ï¿½ï¿½ï¿½Æµ
 
   // Remove repeated items
   size_t unique_scis_num = 1;
   for (size_t pos = 1; pos < scis_num_; pos++) {
     if (scis_[pos].hz == scis_[pos - 1].hz &&
         scis_[pos].splid.full_splid == scis_[pos - 1].splid.full_splid)
-      continue; // ¶ÔÓÚÍ¬×ÖÍ¬ÒôµÄÔªËØ£¬ÔòÈÓµôºóÕß
+      continue; // ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½Í¬ï¿½ï¿½ï¿½Ôªï¿½Ø£ï¿½ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½
     scis_[unique_scis_num] = scis_[pos];
     scis_[unique_scis_num].splid.half_splid =
         spl_trie.full_to_half(scis_[pos].splid.full_splid);
@@ -879,7 +879,7 @@ bool DictBuilder::construct_subset(void* parent, LemmaEntry* lemma_arr,
   uint16 spl_idx_node = lma_last_start->spl_idx_arr[level];
 
   // Scan for how many sons to be allocaed
-  // µ±Ç°ÕâÒ»²ã(level²ã)ÓĞ¶àÉÙÔªËØ£¬¼ÇÂ¼µ½parent_son_num
+  // ï¿½ï¿½Ç°ï¿½ï¿½Ò»ï¿½ï¿½(levelï¿½ï¿½)ï¿½Ğ¶ï¿½ï¿½ï¿½Ôªï¿½Ø£ï¿½ï¿½ï¿½Â¼ï¿½ï¿½parent_son_num
   for (size_t i = item_start + 1; i< item_end; i++) {
     LemmaEntry *lma_current = lemma_arr + i;
     uint16 spl_idx_current = lma_current->spl_idx_arr[level];
@@ -896,7 +896,7 @@ bool DictBuilder::construct_subset(void* parent, LemmaEntry* lemma_arr,
 
   assert(level < kMaxLemmaSize);
   if (parent_son_num > max_sonbuf_len_[level])
-    max_sonbuf_len_[level] = parent_son_num;  // ¼ÇÂ¼¸Ã²ãÔªËØ¸öÊı
+    max_sonbuf_len_[level] = parent_son_num;  // ï¿½ï¿½Â¼ï¿½Ã²ï¿½Ôªï¿½Ø¸ï¿½ï¿½ï¿½
 
   total_son_num_[level] += parent_son_num;
   total_sonbuf_num_[level] += 1;
@@ -958,10 +958,10 @@ bool DictBuilder::construct_subset(void* parent, LemmaEntry* lemma_arr,
     uint16 spl_idx_current = lma_current->spl_idx_arr[level];
 
     if (spl_idx_current == spl_idx_node) {
-      // ÔÚµ±Ç°²ãÏÂ£¬¶ÔÓÚÒôÏàÍ¬µÄÔªËØ£¬homo_num¼ÇÂ¼µ±Ç°ÒôÏÂÓĞ¶àÉÙ¸ö´Ê
+      // ï¿½Úµï¿½Ç°ï¿½ï¿½ï¿½Â£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½Ôªï¿½Ø£ï¿½homo_numï¿½ï¿½Â¼ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¶ï¿½ï¿½Ù¸ï¿½ï¿½ï¿½
       if (lma_current->spl_idx_arr[level + 1] == 0)
         homo_num++;
-    } else { // Ò»Ö±×ßµ½ÔÚµ±Ç°²ãÏÂ£¬Òô²»Í¬µÄÔªËØ
+    } else { // Ò»Ö±ï¿½ßµï¿½ï¿½Úµï¿½Ç°ï¿½ï¿½ï¿½Â£ï¿½ï¿½ï¿½Í¬ï¿½ï¿½Ôªï¿½ï¿½
       // Construct a node
       LmaNodeLE0 *node_cur_le0 = NULL;  // only one of them is valid
       LmaNodeGE1 *node_cur_ge1 = NULL;
@@ -981,7 +981,7 @@ bool DictBuilder::construct_subset(void* parent, LemmaEntry* lemma_arr,
         homo_idx_num_gt1_ += homo_num;
       }
 
-      if (homo_num > 0) { // Èç¹ûµ±Ç°Òô½ÚÏÂÓĞ¶à¸ö´Ê£¬½«ËüÃÇ¼ÇÂ¼µ½idx_bufÊı×éÖĞ
+      if (homo_num > 0) { // ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¶ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¼ï¿½Â¼ï¿½ï¿½idx_bufï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         LemmaIdType* idx_buf = homo_idx_buf_ + homo_idx_num_eq1_ +
               homo_idx_num_gt1_ - homo_num;
         if (0 == level) {
@@ -1004,7 +1004,7 @@ bool DictBuilder::construct_subset(void* parent, LemmaEntry* lemma_arr,
 #endif
       }
 
-      if (i - item_start_next > homo_num) { // ËµÃ÷ÔÚµ±Ç°Òô½ÚÏÂ»¹ÓĞ×Ó½Úµã
+      if (i - item_start_next > homo_num) { // Ëµï¿½ï¿½ï¿½Úµï¿½Ç°ï¿½ï¿½ï¿½ï¿½Â»ï¿½ï¿½ï¿½ï¿½Ó½Úµï¿½
         void *next_parent;
         if (0 == level)
           next_parent = static_cast<void*>(node_cur_le0);

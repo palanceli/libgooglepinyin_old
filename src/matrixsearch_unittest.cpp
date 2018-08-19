@@ -35,6 +35,8 @@
 #include "../include/matrixsearch.h"
 #include <unistd.h>
 
+//myexe_test --gtest_filter=MatrixSearchTest.TCSearch
+
 using namespace ime_pinyin;
 
 namespace googlepinyin_test{

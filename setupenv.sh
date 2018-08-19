@@ -13,11 +13,12 @@
 # cd modules/gflags
 # git checkout v2.2.1
 
-# cd modules/googletest
-# mkdir _build && cd _build && cmake .. && make && make install
+# 保险起见，还是手动执行吧
+cd modules/googletest
+mkdir _build && cd _build && cmake .. && make && make install
 
-# cd modules/gflags
-# mkdir _build && cd _build && cmake .. && make && make install
+cd modules/gflags
+mkdir _build && cd _build && cmake .. && make && make install
 
-# cd modules/glog
-# mkdir _build && cd _build && cmake .. && make && make install
+cd modules/glog
+mkdir _build && cd _build && cmake .. && make && make install
