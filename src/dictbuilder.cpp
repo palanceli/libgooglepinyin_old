@@ -478,7 +478,7 @@ size_t DictBuilder::read_raw_dict(const char* fn_raw,
 
       utf16_strcpy_tochar(lemma_arr_[i].pinyin_str[hz_pos], token);
 
-      format_spelling_str(lemma_arr_[i].pinyin_str[hz_pos]);
+      format_spelling_str(lemma_arr_[i].pinyin_str[hz_pos]); // 将双声母的h转成小写
 
       // Put the pinyin to the spelling table
       if (!spl_table_->put_spelling(lemma_arr_[i].pinyin_str[hz_pos],
