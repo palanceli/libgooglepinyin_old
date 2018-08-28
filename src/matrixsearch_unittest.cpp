@@ -81,7 +81,7 @@ namespace googlepinyin_test{
     bool ret = im_open_decoder(mSzDatFilePath, mSzUserDict);  // 加载
     assert(ret);
     im_set_max_lens(32, 16);
-    char szLine[256] = "a";
+    char szLine[256] = "dae";
     
     im_reset_search();
     size_t nr = im_search(szLine, strlen(szLine)); // 查询
