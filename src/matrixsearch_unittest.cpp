@@ -72,5 +72,37 @@ namespace googlepinyin_test{
     matrix_search->reset_search();
     const char *szInput = "a";
     matrix_search->search(szInput, strlen(szInput));
+    im_close_decoder();                 // 关闭
   }
+    
+  TEST_F(MatrixSearchTest, TCMain){
+    setlocale(LC_ALL, "");
+    
+    bool ret = im_open_decoder(mSzDatFilePath, mSzUserDict);  // 加载
+    assert(ret);
+    im_set_max_lens(32, 16);
+    char szLine[256] = "a";
+    
+    im_reset_search();
+    size_t nr = im_search(szLine, strlen(szLine)); // 查询
+    size_t size = 0;
+    printf("输入串：%s\n候选串：", im_get_sps_str(&size));  // 返回拼音串
+    char16 str[64] = { 0 };
+    for (auto i = 0; i < nr; i++)
+    {
+      im_get_candidate(i, str, 32);         // 获取查询候选
+      if(i > 5)
+        break;
+      
+      std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+      std::string strCand = convert.to_bytes((char16_t*)str);
+      std::cout << i << "." << strCand << " ";
+    }
+    if(nr>5)
+      printf("...");
+    printf(" 共%lu个候选\n", nr);
+    
+    im_close_decoder();                 // 关闭
+  }
+    
 }
