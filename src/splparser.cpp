@@ -26,7 +26,7 @@ SpellingParser::SpellingParser() {
 bool SpellingParser::is_valid_to_parse(char ch) {
   return SpellingTrie::is_valid_spl_char(ch);
 }
-
+// 如果最后一个字母非分隔符，last_is_pre为true
 uint16 SpellingParser::splstr_to_idxs(const char *splstr, uint16 str_len,
                                       uint16 spl_idx[], uint16 start_pos[],
                                       uint16 max_size, bool &last_is_pre) {
