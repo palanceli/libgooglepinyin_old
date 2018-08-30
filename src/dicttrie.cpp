@@ -446,6 +446,8 @@ namespace ime_pinyin {
             
             if (!cached && *lpi_num < lpi_max) {
                 bool need_lpi = true;
+                // 仅对half声母执行展开，如B → BA、BAI...
+                // 对于half韵母则不展开，如A 不再展开为AI、AN...
                 if (spl_trie_->is_half_id_yunmu(splid) && son_pos != son_start)
                     need_lpi = false;
                 

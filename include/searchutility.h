@@ -51,7 +51,7 @@ typedef struct {
   uint16 his_len;  // The length of the history used to do the prediction.
 } NPredictItem, *PNPredictItem;
 
-// 该参数用于词典查找，所有词典均接收相同的DictExtPara参数，由词典指定MileStoneHandle
+// 该参数用于词典查找，所有词典均接收DictExtPara参数，由词典指定MileStoneHandle
 // Parameter structure used to extend in a dictionary. All dictionaries
 // receives the same DictExtPara and a dictionary specific MileStoneHandle for
 // extending.
