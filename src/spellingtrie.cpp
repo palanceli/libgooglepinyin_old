@@ -18,6 +18,7 @@
 #include <string.h>
 #include <assert.h>
 #include "../include/dictdef.h"
+#include "glog/logging.h"
 
 #ifdef ___BUILD_MODEL___
 #include "../include/spellingtable.h"
@@ -420,6 +421,15 @@ bool SpellingTrie::build_ym_info() {
   ym_num_ = ym_num;
 
   delete spl_table;
+  {
+    for(auto i=0; i<ym_num; i++){
+      char szMsg[256] = {0};
+      for(auto j=0; j<ym_item_size; j++){
+        szMsg[j] = ym_buf_[i*ym_item_size + j];
+      }
+      LOG(INFO)<< i << " " << szMsg;
+    }
+  }
   //if (kPrintDebug0) {
   //  printf("------------ym_buf_  id--------------\n");
   //  for (auto i = 0; i < ym_num; i++) {
@@ -452,8 +462,11 @@ bool SpellingTrie::build_ym_info() {
     } else {
       spl_ym_ids_[id] = 0;
     }
-    //if (kPrintDebug0)
-    //  printf("spl_ym_ids [ %3d ]= %d\n", id, spl_ym_ids_[id]);
+    {
+      char szMsg[256];
+      sprintf(szMsg, "spl_ym_ids [ %3d ]= %d\n", id, spl_ym_ids_[id]);
+      LOG(INFO)<<szMsg;
+    }
   }
   return true;
 }
