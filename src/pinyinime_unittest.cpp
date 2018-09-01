@@ -91,6 +91,6 @@ namespace googlepinyin_test{
   
   TEST_F(PinyinImeTest, TCImSearch01){
     // 只查系统词
-    doSearch("a");
+    doSearch("dae");
   }
 }
