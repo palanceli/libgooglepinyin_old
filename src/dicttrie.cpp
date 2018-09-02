@@ -25,6 +25,7 @@
 #include <libgen.h>
 #include <iostream>
 #include <codecvt>
+#include "glog/logging.h"
 
 namespace ime_pinyin {
     
@@ -227,19 +228,22 @@ namespace ime_pinyin {
         uint16 last_splid = kFullSplIdStart;
         size_t last_pos = 0;
         for (size_t i = 1; i < lma_node_num_le0_; i++) {
-            for (uint16 splid = last_splid; splid < root_[i].spl_idx; splid++)
-                splid_le0_index_[splid - kFullSplIdStart] = last_pos;
-            
-            splid_le0_index_[root_[i].spl_idx - kFullSplIdStart] =
-            static_cast<uint16>(i);
-            last_splid = root_[i].spl_idx;
-            last_pos = i;
+          for (uint16 splid = last_splid; splid < root_[i].spl_idx; splid++){
+            splid_le0_index_[splid - kFullSplIdStart] = last_pos;
+            printf("-splid_le0_index_[%03d]=%lu\n", splid - kFullSplIdStart, last_pos);
+          }
+          
+          splid_le0_index_[root_[i].spl_idx - kFullSplIdStart] = static_cast<uint16>(i);
+          printf("splid_le0_index_[%03d]=%lu\n", root_[i].spl_idx - kFullSplIdStart, i);
+          last_splid = root_[i].spl_idx;
+          last_pos = i;
         }
         
         for (uint16 splid = last_splid + 1;
              splid < buf_size + kFullSplIdStart; splid++) {
             assert(static_cast<size_t>(splid - kFullSplIdStart) < buf_size);
             splid_le0_index_[splid - kFullSplIdStart] = last_pos + 1;
+            printf("--splid_le0_index_[%03d]=%lu\n", splid - kFullSplIdStart, last_pos + 1);
         }
         
         return true;
