@@ -487,77 +487,78 @@ namespace ime_pinyin {
                                            const DictExtPara *dep,
                                            LmaPsbItem *lpi_items,
                                            size_t lpi_max, size_t *lpi_num) {
-        assert(NULL != dep && from_handle > 0 && from_handle < mile_stones_pos_);
+      assert(NULL != dep && from_handle > 0 && from_handle < mile_stones_pos_);
+      
+      MileStoneHandle ret_handle = 0;
+      
+      // 1. If this is a half Id, get its corresponding full starting Id and
+      // number of full Id.
+      size_t ret_val = 0;
+      
+      uint16 id_start = dep->id_start;
+      uint16 id_num = dep->id_num;
+      
+      // 2. Begin extending.
+      MileStone *mile_stone = mile_stones_ + from_handle;
+      
+      for (uint16 h_pos = 0; h_pos < mile_stone->mark_num; h_pos++) {
+        ParsingMark p_mark = parsing_marks_[mile_stone->mark_start + h_pos];
+        uint16 ext_num = p_mark.node_num;
+        for (uint16 ext_pos = 0; ext_pos < ext_num; ext_pos++) {
+          LmaNodeLE0 *node = root_ + p_mark.node_offset + ext_pos;
+          size_t found_start = 0;
+          size_t found_num = 0;
+          for (size_t son_pos = 0; son_pos < (size_t)node->num_of_son; son_pos++) {
+            assert(node->son_1st_off <= lma_node_num_ge1_);
+            LmaNodeGE1 *son = nodes_ge1_ + node->son_1st_off + son_pos;
+            // 仅当son落在dep_指定的区间，才查询词库
+            if (son->spl_idx >= id_start
+                && son->spl_idx < id_start + id_num) {
+              if (*lpi_num < lpi_max) {
+                size_t homo_buf_off = get_homo_idx_buf_offset(son);
+                *lpi_num += fill_lpi_buffer(lpi_items + (*lpi_num),
+                                            lpi_max - *lpi_num, homo_buf_off, son,
+                                            2);
+              }
+              
+              // If necessary, fill in the new DTMI
+              if (0 == found_num) {
+                found_start = son_pos;
+              }
+              found_num++;
+            }
+            if (son->spl_idx >= id_start + id_num - 1 || son_pos ==
+                (size_t)node->num_of_son - 1) {
+              if (found_num > 0) {
+                if (mile_stones_pos_ < kMaxMileStone &&
+                    parsing_marks_pos_ < kMaxParsingMark) {
+                  parsing_marks_[parsing_marks_pos_].node_offset =
+                  node->son_1st_off + found_start;
+                  parsing_marks_[parsing_marks_pos_].node_num = found_num;
+                  if (0 == ret_val)
+                    mile_stones_[mile_stones_pos_].mark_start =
+                    parsing_marks_pos_;
+                  parsing_marks_pos_++;
+                }
+                
+                ret_val++;
+              }
+              break;
+            }  // for son_pos
+          }  // for ext_pos
+        }  // for h_pos
+      }
+      
+      if (ret_val > 0) {
+        mile_stones_[mile_stones_pos_].mark_num = ret_val;
+        ret_handle = mile_stones_pos_;
+        mile_stones_pos_++;
+        ret_val = 1;
+      }
         
-        MileStoneHandle ret_handle = 0;
-        
-        // 1. If this is a half Id, get its corresponding full starting Id and
-        // number of full Id.
-        size_t ret_val = 0;
-        
-        uint16 id_start = dep->id_start;
-        uint16 id_num = dep->id_num;
-        
-        // 2. Begin extending.
-        MileStone *mile_stone = mile_stones_ + from_handle;
-        
-        for (uint16 h_pos = 0; h_pos < mile_stone->mark_num; h_pos++) {
-            ParsingMark p_mark = parsing_marks_[mile_stone->mark_start + h_pos];
-            uint16 ext_num = p_mark.node_num;
-            for (uint16 ext_pos = 0; ext_pos < ext_num; ext_pos++) {
-                LmaNodeLE0 *node = root_ + p_mark.node_offset + ext_pos;
-                size_t found_start = 0;
-                size_t found_num = 0;
-                for (size_t son_pos = 0; son_pos < (size_t)node->num_of_son; son_pos++) {
-                    assert(node->son_1st_off <= lma_node_num_ge1_);
-                    LmaNodeGE1 *son = nodes_ge1_ + node->son_1st_off + son_pos;
-                    if (son->spl_idx >= id_start
-                        && son->spl_idx < id_start + id_num) {
-                        if (*lpi_num < lpi_max) {
-                            size_t homo_buf_off = get_homo_idx_buf_offset(son);
-                            *lpi_num += fill_lpi_buffer(lpi_items + (*lpi_num),
-                                                        lpi_max - *lpi_num, homo_buf_off, son,
-                                                        2);
-                        }
-                        
-                        // If necessary, fill in the new DTMI
-                        if (0 == found_num) {
-                            found_start = son_pos;
-                        }
-                        found_num++;
-                    }
-                    if (son->spl_idx >= id_start + id_num - 1 || son_pos ==
-                        (size_t)node->num_of_son - 1) {
-                        if (found_num > 0) {
-                            if (mile_stones_pos_ < kMaxMileStone &&
-                                parsing_marks_pos_ < kMaxParsingMark) {
-                                parsing_marks_[parsing_marks_pos_].node_offset =
-                                node->son_1st_off + found_start;
-                                parsing_marks_[parsing_marks_pos_].node_num = found_num;
-                                if (0 == ret_val)
-                                    mile_stones_[mile_stones_pos_].mark_start =
-                                    parsing_marks_pos_;
-                                parsing_marks_pos_++;
-                            }
-                            
-                            ret_val++;
-                        }
-                        break;
-                    }  // for son_pos
-                }  // for ext_pos
-            }  // for h_pos
-        }
-        
-        if (ret_val > 0) {
-            mile_stones_[mile_stones_pos_].mark_num = ret_val;
-            ret_handle = mile_stones_pos_;
-            mile_stones_pos_++;
-            ret_val = 1;
-        }
-        
-        //  printf("----- parsing marks: %d, mile stone: %d \n", parsing_marks_pos_,
-        //         mile_stones_pos_);
-        return ret_handle;
+      //  printf("----- parsing marks: %d, mile stone: %d \n", parsing_marks_pos_,
+      //         mile_stones_pos_);
+      return ret_handle;
     }
     
     MileStoneHandle DictTrie::extend_dict2(MileStoneHandle from_handle,
