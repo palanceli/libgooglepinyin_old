@@ -9,7 +9,7 @@ endif (BIGENDIAN)
 
 add_custom_command(OUTPUT dict_pinyin.dat
                    DEPENDS dictbuilder
-                   COMMAND dictbuilder ${CMAKE_CURRENT_SOURCE_DIR}/rawdict_utf16_65105_freq${DATA_SUFFIX}.txt ${CMAKE_CURRENT_SOURCE_DIR}/valid_utf16${DATA_SUFFIX}.txt)
+                   COMMAND dictbuilder ${CMAKE_CURRENT_SOURCE_DIR}/rawdict_utf16_65105_freq${DATA_SUFFIX}.txt ${CMAKE_CURRENT_SOURCE_DIR}/valid_utf16${DATA_SUFFIX}.txt ${CMAKE_CURRENT_BINARY_DIR}/dict_pinyin.dat)
 
 add_custom_target(datafile ALL DEPENDS dict_pinyin.dat)
 
