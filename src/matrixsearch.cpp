@@ -1821,7 +1821,7 @@ namespace ime_pinyin {
             id_num++;
             
             if (kPrintDebug1) {
-                printf("---MatrixNode [step: %d, lma_idx: %d, total score:%.5f]\n",
+                printf("---MatrixNode [step: %d, lma_idx: %lu, total score:%.5f]\n",
                        mtrx_nd->step, mtrx_nd->id, mtrx_nd->score);
                 debug_print_dmi(mtrx_nd->dmi_fr, 1);
             }
