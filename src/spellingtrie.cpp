@@ -25,6 +25,7 @@
 #endif
 
 #include "../include/spellingtrie.h"
+#include "../include/loghelper.h"
 
 namespace ime_pinyin {
 
@@ -351,17 +352,18 @@ bool SpellingTrie::construct(const char* spelling_arr, size_t item_size,
 
   // Root's score should be cleared.
   root_->score = 0;
+  LogSpellingTrie(root_, level1_sons_, kValidSplCharNum);
 
   if (NULL == root_->first_son)
     return false;
 
-  //printf("--------------walk through trie-----------------\n");
-  //walkThrought(root_, "");
 
   h2f_start_[0] = h2f_num_[0] = 0;
+  LogH2F(h2f_start_, h2f_num_, kFullSplIdStart);
 
   if (!build_f2h())
     return false;
+  LogF2H(f2h_, spelling_num_);
 
 #ifdef ___BUILD_MODEL___
   if (kPrintDebug0) {
@@ -430,6 +432,7 @@ bool SpellingTrie::build_ym_info() {
       LOG(INFO)<< i << " " << szMsg;
     }
   }
+  LogYmBuf(ym_buf_, ym_size_, ym_num_);
   //if (kPrintDebug0) {
   //  printf("------------ym_buf_  id--------------\n");
   //  for (auto i = 0; i < ym_num; i++) {
@@ -468,6 +471,7 @@ bool SpellingTrie::build_ym_info() {
       LOG(INFO)<<szMsg;
     }
   }
+  LogSplYmIds(spl_ym_ids_, spelling_num_ + kFullSplIdStart);
   return true;
 }
 #endif

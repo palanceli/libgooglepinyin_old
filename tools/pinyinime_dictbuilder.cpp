@@ -30,6 +30,7 @@
 #endif
 //#*#*}}
 #include "../include/dicttrie.h"
+#include "glog/logging.h"
 
 #include <locale.h>
 
@@ -42,6 +43,12 @@ using namespace ime_pinyin;
  */
 int main(int argc, char* argv[]) {
   setlocale(LC_ALL, "");
+  FLAGS_log_dir = "/Users/palance/Desktop/log";
+  google::InitGoogleLogging(argv[0]);
+  google::SetLogDestination(google::GLOG_INFO, "/Users/palance/Desktop/log/lblog");
+  google::SetLogFilenameExtension(".lblog");
+  LOG(INFO)<<"test";
+  
   DictTrie* dict_trie = new DictTrie();
   bool success;
   
@@ -73,5 +80,6 @@ int main(int argc, char* argv[]) {
     return -1;
   }
 
+  google::ShutdownGoogleLogging();
   return 0;
 }

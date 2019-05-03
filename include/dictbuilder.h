@@ -29,7 +29,7 @@ namespace ime_pinyin {
 
 #ifdef ___BUILD_MODEL___
 
-#define ___DO_STATISTICS___
+//#define ___DO_STATISTICS___
 
 class DictTrie;
 

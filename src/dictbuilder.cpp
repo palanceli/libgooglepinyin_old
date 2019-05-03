@@ -28,6 +28,7 @@
 #include "../include/spellingtrie.h"
 #include "../include/splparser.h"
 #include "../include/utf16reader.h"
+#include "../include/loghelper.h"
 
 namespace ime_pinyin {
 
@@ -513,6 +514,7 @@ bool DictBuilder::build_dict(const char *fn_raw,
   lemma_num_ = read_raw_dict(fn_raw, fn_validhzs, 240000);
   if (0 == lemma_num_)
     return false;
+  LogLemma(lemma_arr_, lemma_num_);
 
   // Arrange the spelling table, and build a spelling tree
   // The size of an spelling. '\0' is included. If the spelling table is
@@ -527,6 +529,8 @@ bool DictBuilder::build_dict(const char *fn_raw,
     return false;
   }
 
+  LogRawSpellingList(spl_buf, spl_item_size, spl_num);
+  
   SpellingTrie &spl_trie = SpellingTrie::get_instance();
 
   if (!spl_trie.construct(spl_buf, spl_item_size, spl_num,
