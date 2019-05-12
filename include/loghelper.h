@@ -28,4 +28,8 @@ void LogH2F(ime_pinyin::uint16 *h2fStart, ime_pinyin::uint16 *h2fNum, size_t cIt
 void LogF2H(ime_pinyin::uint16 *f2h, size_t cItems);
 void LogYmBuf(const char* pYmBuf, size_t ymItemSize, size_t ymNum);
 void LogSplYmIds(ime_pinyin::uint8 *splYmIds, size_t cItems);
+void LogSingleCharItems(ime_pinyin::SingleCharItem* scis, size_t cItems);
+void LogLmaNodeLE0(ime_pinyin::LmaNodeLE0* pLmaNode, size_t cItems);
+void LogLmaNodeGE1(ime_pinyin::LmaNodeGE1* pLmaNode, size_t cItems);
+void LogHomoIdxBuf(ime_pinyin::LemmaIdType* homo_idx_buf, size_t cItems);
 #endif

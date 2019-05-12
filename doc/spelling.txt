@@ -1,4 +1,4 @@
-idx    str    freq    157
+idx    str    freq
   0,       A, 97
   1,      AI, 92
   2,      AN, 86

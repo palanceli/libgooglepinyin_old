@@ -40,7 +40,7 @@ inline double distance(double freq, double code) {
 }
 
 // Find the index of the code value which is nearest to the given freq
-// 在code_book[]中找到与freq最接近的值，返回下标
+// 脭脷code_book[]脰脨脮脪碌陆脫毛freq脳卯陆脫陆眉碌脛脰碌拢卢路碌禄脴脧脗卤锚
 int qsearch_nearest(double code_book[], double freq, int start, int end) {
   if (start == end)
     return start;
@@ -62,13 +62,13 @@ int qsearch_nearest(double code_book[], double freq, int start, int end) {
 size_t update_code_idx(double freqs[], size_t num, double code_book[],
                        CODEBOOK_TYPE *code_idx) {
   size_t changed = 0;
-  // 将系统词频归拢成256个值，具体做法是：
-  // 1、在系统词库中从头往后找，找出256个不同的词频；
-  // 2、遍历系统词库，对于每一个词频，从这256个中找到与之最接近的，作为该词的词频
-  // 将最接近的元素下标记录到code_idx中
+  // 陆芦脧碌脥鲁麓脢脝碌鹿茅脗拢鲁脡256赂枚脰碌拢卢戮脽脤氓脳枚路篓脢脟拢潞
+  // 1隆垄脭脷脧碌脥鲁麓脢驴芒脰脨麓脫脥路脥霉潞贸脮脪拢卢脮脪鲁枚256赂枚虏禄脥卢碌脛麓脢脝碌拢禄
+  // 2隆垄卤茅脌煤脧碌脥鲁麓脢驴芒拢卢露脭脫脷脙驴脪禄赂枚麓脢脝碌拢卢麓脫脮芒256赂枚脰脨脮脪碌陆脫毛脰庐脳卯陆脫陆眉碌脛拢卢脳梅脦陋赂脙麓脢碌脛麓脢脝碌
+  // 陆芦脳卯陆脫陆眉碌脛脭陋脣脴脧脗卤锚录脟脗录碌陆code_idx脰脨
   for (size_t pos = 0; pos < num; pos++) {
     CODEBOOK_TYPE idx;
-    // 在cood_book中找到与freqs[pos]最接近的值，返回其下标
+    // 脭脷cood_book脰脨脮脪碌陆脫毛freqs[pos]脳卯陆脫陆眉碌脛脰碌拢卢路碌禄脴脝盲脧脗卤锚
     idx = qsearch_nearest(code_book, freqs[pos], 0, kCodeBookSize - 1); 
     if (idx != code_idx[pos])
       changed++;
@@ -92,19 +92,19 @@ double recalculate_kernel(double freqs[], size_t num, double code_book[],
   for (size_t pos = 0; pos < num; pos++) {
     ret += distance(freqs[pos], code_book[code_idx[pos]]);
 
-    cb_new[code_idx[pos]] += freqs[pos];  // 所有指向该位置的freqs总和
-    item_num[code_idx[pos]] += 1;         // 所有指向该位置的freqs的元素个数
+    cb_new[code_idx[pos]] += freqs[pos];  // 脣霉脫脨脰赂脧貌赂脙脦禄脰脙碌脛freqs脳脺潞脥
+    item_num[code_idx[pos]] += 1;         // 脣霉脫脨脰赂脧貌赂脙脦禄脰脙碌脛freqs碌脛脭陋脣脴赂枚脢媒
   }
 
   for (size_t code = 0; code < kCodeBookSize; code++) {
     assert(item_num[code] > 0);
-    code_book[code] = cb_new[code] / item_num[code]; // 所有指向该位置的freqs的均值
+    code_book[code] = cb_new[code] / item_num[code]; // 脣霉脫脨脰赂脧貌赂脙脦禄脰脙碌脛freqs碌脛戮霉脰碌
   }
 
   delete [] item_num;
   delete [] cb_new;
 
-  return ret; // 返回“lemma_arr中词频和归拢词频的差”的总和
+  return ret; // 路碌禄脴隆掳lemma_arr脰脨麓脢脝碌潞脥鹿茅脗拢麓脢脝碌碌脛虏卯隆卤碌脛脳脺潞脥
 }
 
 void iterate_codes(double freqs[], size_t num, double code_book[],
@@ -112,12 +112,12 @@ void iterate_codes(double freqs[], size_t num, double code_book[],
   size_t iter_num = 0;
   double delta_last = 0;
   do {
-    // 将系统词库中每个词的词频归拢成256个值，对于lemma_arr中的每个元素i，
-    // code_book[ code_idx[i] ] 是与该词词频最接近的归拢后的词频
+    // 陆芦脧碌脥鲁麓脢驴芒脰脨脙驴赂枚麓脢碌脛麓脢脝碌鹿茅脗拢鲁脡256赂枚脰碌拢卢露脭脫脷lemma_arr脰脨碌脛脙驴赂枚脭陋脣脴i拢卢
+    // code_book[ code_idx[i] ] 脢脟脫毛赂脙麓脢麓脢脝碌脳卯陆脫陆眉碌脛鹿茅脗拢潞贸碌脛麓脢脝碌
     size_t changed = update_code_idx(freqs, num, code_book, code_idx);
 
-    // 对于code_book中每个元素，取在lemma_arr归拢到该元素的所有词条的freq平均值，重新赋给该元素
-    // delat是 Σ(lemma_arr每个词频-其归拢值)
+    // 露脭脫脷code_book脰脨脙驴赂枚脭陋脣脴拢卢脠隆脭脷lemma_arr鹿茅脗拢碌陆赂脙脭陋脣脴碌脛脣霉脫脨麓脢脤玫碌脛freq脝陆戮霉脰碌拢卢脰脴脨脗赂鲁赂酶赂脙脭陋脣脴
+    // delat脢脟 娄虏(lemma_arr脙驴赂枚麓脢脝碌-脝盲鹿茅脗拢脰碌)
     double delta = recalculate_kernel(freqs, num, code_book, code_idx);
 
     //if (kPrintDebug0) {
@@ -264,7 +264,7 @@ bool NGram::build_unigram(LemmaEntry *lemma_arr, size_t lemma_num,
   freqs[0] = ADD_COUNT;
   total_freq += freqs[0];
   LemmaIdType idx_now = 0;
-  // 将lemma_arr中的词频拷贝到freqs[]数组，并记录总词频total_freq
+  // 璁＄畻 total_freq
   for (size_t pos = 0; pos < lemma_num; pos++) {
     if (lemma_arr[pos].idx_by_hz == idx_now)
       continue;
@@ -280,12 +280,12 @@ bool NGram::build_unigram(LemmaEntry *lemma_arr, size_t lemma_num,
   }
 
   double max_freq = 0;
-  idx_num_ = idx_now + 1; // lemma_arr_系统词条个数+1
+  idx_num_ = idx_now + 1; // lemma_arr_脧碌脥鲁麓脢脤玫赂枚脢媒+1
   assert(idx_now + 1 == next_idx_unused);
 
-  // 在freqs中折算词频 并记录最大词频
+  // 褰掍竴鍖杅reqs锛屽叾idx鏄湪lemma_arr涓殑绱㈠紩
   for (size_t pos = 0; pos < idx_num_; pos++) {
-    freqs[pos] = freqs[pos] / total_freq; // 折算方法
+    freqs[pos] = freqs[pos] / total_freq; // 脮脹脣茫路陆路篓
     assert(freqs[pos] > 0);
     if (freqs[pos] > max_freq)
       max_freq = freqs[pos];
@@ -303,7 +303,7 @@ bool NGram::build_unigram(LemmaEntry *lemma_arr, size_t lemma_num,
   memset(freq_codes_, 0, sizeof(LmaScoreType) * kCodeBookSize);
 
   size_t freq_pos = 0;
-  // 在系统词频里从头往后找，找到前256个不同的词频放到freq_codes_df_[256]中
+  // 脭脷脧碌脥鲁麓脢脝碌脌茂麓脫脥路脥霉潞贸脮脪拢卢脮脪碌陆脟掳256赂枚虏禄脥卢碌脛麓脢脝碌路脜碌陆freq_codes_df_[256]脰脨
   for (size_t code_pos = 0; code_pos < kCodeBookSize; code_pos++) {
     bool found = true;
 
@@ -329,8 +329,8 @@ bool NGram::build_unigram(LemmaEntry *lemma_arr, size_t lemma_num,
     lma_freq_idx_ = new CODEBOOK_TYPE[idx_num_];
   assert(lma_freq_idx_);
 
-  // 将系统词库的词频归拢到freq_codes_df_中的256个值上去，并经过多伦迭代，让
-  // Σ(系统词条的词频 - 其归拢值)最小
+  // 陆芦脧碌脥鲁麓脢驴芒碌脛麓脢脝碌鹿茅脗拢碌陆freq_codes_df_脰脨碌脛256赂枚脰碌脡脧脠楼拢卢虏垄戮颅鹿媒露脿脗脳碌眉麓煤拢卢脠脙
+  // 娄虏(脧碌脥鲁麓脢脤玫碌脛麓脢脝碌 - 脝盲鹿茅脗拢脰碌)脳卯脨隆
   iterate_codes(freqs, idx_num_, freq_codes_df_, lma_freq_idx_);
 
   delete [] freqs;
