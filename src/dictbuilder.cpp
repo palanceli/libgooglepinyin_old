@@ -514,7 +514,7 @@ bool DictBuilder::build_dict(const char *fn_raw,
   lemma_num_ = read_raw_dict(fn_raw, fn_validhzs, 240000);
   if (0 == lemma_num_)
     return false;
-  LogLemma(lemma_arr_, lemma_num_);
+//  LogLemma(lemma_arr_, lemma_num_);
 
   // Arrange the spelling table, and build a spelling tree
   // The size of an spelling. '\0' is included. If the spelling table is
@@ -543,6 +543,7 @@ bool DictBuilder::build_dict(const char *fn_raw,
   printf("spelling tree construct successfully.\n");
 
   // Convert the spelling string to idxs
+  // 给lemma_arr_的spl_idx_arr字段赋值
   for (size_t i = 0; i < lemma_num_; i++) {
     for (size_t hz_pos = 0; hz_pos < (size_t)lemma_arr_[i].hz_str_len;
          hz_pos++) {
@@ -597,6 +598,7 @@ bool DictBuilder::build_dict(const char *fn_raw,
 
   // sort the lemma items according to the spelling idx string
   myqsort(lemma_arr_, lemma_num_, sizeof(LemmaEntry), compare_py);
+  LogLemma(lemma_arr_, lemma_num_);
 
   get_top_lemmas(); // ȡ����Ƶ����top_lmas_num_��LemmaEntry���ɴ�С�ŵ�top_lmas_��
   //if (kPrintDebug0) {
@@ -630,6 +632,10 @@ bool DictBuilder::build_dict(const char *fn_raw,
     free_resource();
     return false;
   }
+  LogLmaNodeLE0(lma_nodes_le0_, lma_nds_used_num_le0_);
+  LogLmaNodeGE1(lma_nodes_ge1_, lma_nds_used_num_ge1_);
+  LogHomoIdxBuf(homo_idx_buf_, lemma_num_);
+  
   if (kPrintDebug0) {
     //for (auto i = 0; i < kMaxSpellingNum + 1; i++) {
     //  printf("%d %d %d %d %d\n", lma_nodes_le0_[i].son_1st_off, lma_nodes_le0_[i].homo_idx_buf_off, lma_nodes_le0_[i].spl_idx,
@@ -815,6 +821,8 @@ size_t DictBuilder::build_scis() {
 
   scis_num_ = unique_scis_num;
 
+  LogSingleCharItems(scis_, scis_num_);
+  
   //if (kPrintDebug0) {
   //  for (auto i = 0; i < scis_num_; i++) {
   //    wchar_t sz[2] = { 0 };
@@ -845,6 +853,7 @@ size_t DictBuilder::build_scis() {
       lemma_arr_[pos].spl_idx_arr[hzpos] = found->splid.full_splid;
 
     }
+    
     //if (kPrintDebug0) {
     //  wchar_t szMsg[256] = { 0 };
     //  wchar_t szTmp[64] = { 0 };
@@ -864,6 +873,7 @@ size_t DictBuilder::build_scis() {
     //  printf("} %d %.4f\n", lemma_arr_[pos].hz_str_len, lemma_arr_[pos].freq);
     //}
   }
+//  LogLemma(lemma_arr_, lemma_num_);
 
   return scis_num_;
 }

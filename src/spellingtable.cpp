@@ -134,7 +134,7 @@ bool SpellingTable::init_table(size_t pure_spl_size, size_t spl_max_num,
   return true;
 }
 
-// ��spelling_str���ӵ���ϣ��raw_spellings_��
+// ½«spelling_strÌí¼Óµ½¹þÏ£±íraw_spellings_ÖÐ
 bool SpellingTable::put_spelling(const char* spelling_str, double freq) {
   if (frozen_ || NULL == spelling_str)
     return false;
@@ -224,8 +224,7 @@ const char* SpellingTable::arrange(size_t *item_size, size_t *spl_num) {
   qsort(raw_spellings_, spelling_max_num_, sizeof(RawSpelling),
         compare_raw_spl_eb);
 
-  // After sorting, only the first spelling_num_ items are valid.
-  // Copy them to the destination buffer.
+  // 以8bytes为一个单元拷贝str，str只占7bytes，末端1bytes在下面填充
   for (size_t pos = 0; pos < spelling_num_; pos++) {
     strncpy(spelling_buf_ + pos * spelling_size_, raw_spellings_[pos].str,
             spelling_size_);
@@ -268,6 +267,7 @@ const char* SpellingTable::arrange(size_t *item_size, size_t *spl_num) {
     // both of them are negative after log function.
     score_amplifier_ = 1.0 * 255 / min_score;
 
+    // 填充spelling_buf_每个单元中的末尾1byte
     double average_score = 0;
     for (size_t pos = 0; pos < spelling_num_; pos++) {
       double score = log(raw_spellings_[pos].freq) * score_amplifier_;
