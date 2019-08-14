@@ -3,3 +3,4 @@ data/~$*.xlsx
 .DS_Store
 data/dict_pinyin.dat
 _build/
+makfilebuild/
